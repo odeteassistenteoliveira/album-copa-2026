@@ -75,7 +75,8 @@ export default function GroupSection({
                     teamFlag={team.flag}
                     quantity={qty}
                     // Clique rápido → marca/desmarca direto (sem modal)
-                    onClick={!readOnly && onToggle
+                    // Duplo toque: só MARCA (nunca desmarca — para desmarcar usa o card)
+                    onClick={!readOnly && onToggle && qty === 0
                       ? () => onToggle(team.code, num)
                       : readOnly
                       ? () => setModal({ teamCode: team.code, teamName: team.name, teamFlag: team.flag, number: num })
