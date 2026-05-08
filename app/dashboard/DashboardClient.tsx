@@ -52,27 +52,29 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
   return (
     <div className="min-h-screen bg-dark">
       <header className="sticky top-0 z-40 bg-dark/95 backdrop-blur-sm border-b border-dark-border px-4 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 shrink-0">
             <span className="text-xl">🏆</span>
             <span className="font-bebas text-xl text-yellow-400 hidden sm:block">Copa 2026</span>
           </div>
 
           <AlbumStats collected={collected} total={total} albumName={album.name} compact />
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             {totalDupes > 0 && (
-              <a href="/trocas"
-                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-colors">
+              <a
+                href="/trocas"
+                className="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-400 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
+              >
                 <span>🔄</span>
-                <span className="hidden sm:inline">Trocas</span>
-                <span className="bg-white/20 rounded-full px-1.5 text-xs">{totalDupes}</span>
+                <span className="hidden sm:inline">Trocar</span>
+                <span className="bg-white/25 rounded-full px-1.5 text-xs font-bold">{totalDupes}</span>
               </a>
             )}
             <InstallPWA />
-            <ShareButton slug={album.slug} />
-            <a href="/perfil" className="text-gray-500 hover:text-white text-sm font-nunito transition-colors" title="Perfil">👤</a>
-            <a href="/api/auth/signout" className="text-gray-500 hover:text-white text-sm font-nunito transition-colors">Sair</a>
+            <ShareButton slug={album.slug} compact />
+            <a href="/perfil" className="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-white text-sm transition-colors rounded-lg hover:bg-white/5" title="Perfil">👤</a>
+            <a href="/api/auth/signout" className="text-gray-500 hover:text-white text-xs font-nunito transition-colors px-1 hidden sm:block">Sair</a>
           </div>
         </div>
       </header>
@@ -83,13 +85,26 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
         </div>
 
         {totalDupes > 0 && (
-          <a href="/trocas" className="block mb-8 bg-blue-900/30 border border-blue-600/40 rounded-xl p-4 hover:border-blue-500/60 transition-colors">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-300 font-bebas text-lg">🔄 Você tem {totalDupes} figurinha{totalDupes > 1 ? "s" : ""} repetida{totalDupes > 1 ? "s" : ""}</p>
-                <p className="text-gray-400 text-sm font-nunito">Encontre colecionadores para trocar →</p>
+          <a
+            href="/trocas"
+            className="block mb-8 rounded-2xl overflow-hidden hover:scale-[1.01] transition-transform active:scale-[0.99]"
+            style={{ background: "linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%)" }}
+          >
+            <div className="px-5 py-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">🔄</span>
+                <div>
+                  <p className="text-white font-bebas text-xl leading-tight">
+                    Você tem {totalDupes} figurinha{totalDupes > 1 ? "s" : ""} repetida{totalDupes > 1 ? "s" : ""}!
+                  </p>
+                  <p className="text-orange-100 text-sm font-nunito">
+                    Encontre colecionadores perto de você e complete o álbum
+                  </p>
+                </div>
               </div>
-              <span className="text-blue-400 text-2xl">→</span>
+              <div className="shrink-0 bg-white/20 hover:bg-white/30 transition-colors rounded-xl px-4 py-2 text-white font-bebas text-base whitespace-nowrap">
+                Buscar trocas →
+              </div>
             </div>
           </a>
         )}

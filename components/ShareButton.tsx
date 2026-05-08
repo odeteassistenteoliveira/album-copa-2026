@@ -4,9 +4,10 @@ import { useState } from "react";
 
 interface ShareButtonProps {
   slug: string;
+  compact?: boolean;
 }
 
-export default function ShareButton({ slug }: ShareButtonProps) {
+export default function ShareButton({ slug, compact = false }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const url =
@@ -20,7 +21,6 @@ export default function ShareButton({ slug }: ShareButtonProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // fallback
       const el = document.createElement("textarea");
       el.value = url;
       document.body.appendChild(el);
@@ -44,6 +44,24 @@ export default function ShareButton({ slug }: ShareButtonProps) {
     }
   };
 
+  // Versão compacta para o header — apenas ícone
+  if (compact) {
+    return (
+      <button
+        onClick={handleShare}
+        title={copied ? "Link copiado!" : "Compartilhar álbum"}
+        className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all active:scale-95
+          ${copied
+            ? "text-green-400 bg-green-900/30"
+            : "text-gray-400 hover:text-yellow-400 hover:bg-white/5"
+          }`}
+      >
+        {copied ? "✓" : "🔗"}
+      </button>
+    );
+  }
+
+  // Versão completa para uso em página
   return (
     <div className="flex flex-col sm:flex-row gap-2">
       <button
@@ -57,10 +75,9 @@ export default function ShareButton({ slug }: ShareButtonProps) {
         onClick={handleCopy}
         className={`
           flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-nunito text-sm border-2 transition-all active:scale-95
-          ${
-            copied
-              ? "border-green-500 text-green-400 bg-green-900/20"
-              : "border-dark-border text-gray-400 hover:border-gray-600"
+          ${copied
+            ? "border-green-500 text-green-400 bg-green-900/20"
+            : "border-dark-border text-gray-400 hover:border-gray-600"
           }
         `}
       >
