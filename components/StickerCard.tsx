@@ -14,7 +14,7 @@ interface StickerCardProps {
   readOnly?: boolean;
 }
 
-const SCROLL_THRESHOLD = 10; // px — movimento acima disso = rolagem, ignora
+const SCROLL_THRESHOLD = 20; // px — movimento acima disso = rolagem, ignora
 const LONG_PRESS_MS = 500;
 
 export default function StickerCard({
