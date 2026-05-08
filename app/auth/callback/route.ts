@@ -12,4 +12,9 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // Para recuperação 
+  if (type === "recovery") {
+    return NextResponse.redirect(new URL("/reset-password", requestUrl.origin));
+  }
+
+  return NextResponse.redirect(new URL("/dashboard", requestUrl.origin));
+}
