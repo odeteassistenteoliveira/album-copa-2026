@@ -9,36 +9,64 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Email e senha obrigatórios" }, { status: 400 });
   }
 
+  // Cliente admin para operações no banco (funciona com sb_secret_* key)
   const admin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
-  // 1. Criar usuário já com email confirmado (sem precisar de link)
-  const name = albumName || `Álbum de ${email.split("@")[0]}`;
-  const { data: userData, error: userError } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { display_name: name },
-  });
-
-  if (userError) {
-    // Usuário já existe — tentar confirmar e continuar
-    if (!userError.message.includes("already registered")) {
-      return NextResponse.json({ error: userError.message }, { status: 400 });
+  // 1. Cadastrar usuário (com anon key via REST direto)
+  const signupResp = await fetch(
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/signup`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      },
+      body: JSON.stringify({ email, password }),
     }
-    // Se já existe, apenas retornar sucesso para que o cliente faça signIn
-    return NextResponse.json({ ok: true, exists: true });
+  );
+
+  const signupData = await signupResp.json();
+
+  if (!signupResp.ok) {
+    const msg = signupData.msg || signupData.message || "Erro ao criar conta";
+    // Usuário já existe — ok, deixar fazer login
+    if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("already exists")) {
+      return NextResponse.json({ ok: true, exists: true });
+    }
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 
-  const userId = userData.user.id;
+  const userId: string = signupData.id || signupData.user?.id;
+  if (!userId) {
+    return NextResponse.json({ error: "Erro interno: usuário não criado" }, { status: 500 });
+  }
 
-  // 2. Criar perfil (caso o trigger não tenha disparado ainda)
-  await admin.from("profiles").upsert({ id: userId, email, display_name: name }, { onConflict: "id" });
+  // 2. Confirmar email via função SQL (sem precisar de JWT admin key)
+  await admin.rpc("confirm_user_email", { user_id: userId });
 
-  // 3. Criar álbum
+  // 3. Criar perfil
+  const name = albumName || `Álbum de ${email.split("@")[0]}`;
+  await admin.from("profiles").upsert(
+    { id: userId, email, display_name: name },
+    { onConflict: "id" }
+  );
+
+  // 4. Verificar se álbum já existe
+  const { data: existing } = await admin
+    .from("albums")
+    .select("id")
+    .eq("user_id", userId)
+    .single();
+
+  if (existing) {
+    return NextResponse.json({ ok: true });
+  }
+
+  // 5. Criar álbum
   const slug = generateSlug(name) + "-" + Math.random().toString(36).slice(2, 6);
   const { data: album, error: albumError } = await admin
     .from("albums")
@@ -50,7 +78,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: albumError.message }, { status: 400 });
   }
 
-  // 4. Criar todas as figurinhas em batch
+  // 6. Criar figurinhas em batch
   const stickers: { album_id: string; team_code: string; number: number }[] = [];
   for (const group of GROUPS) {
     for (const team of group.teams) {
@@ -64,7 +92,6 @@ export async function POST(request: Request) {
       stickers.push({ album_id: album.id, team_code: special.code, number: num });
     }
   }
-
   for (let i = 0; i < stickers.length; i += 500) {
     await admin.from("stickers").insert(stickers.slice(i, i + 500));
   }
