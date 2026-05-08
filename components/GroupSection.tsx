@@ -9,7 +9,6 @@ interface GroupSectionProps {
   groupName: string;
   teams: Array<{ code: string; name: string; flag: string }>;
   quantityMap: Record<string, number>;
-  
   onToggle?: (teamCode: string, number: number) => Promise<void>;
   onQuantityChange?: (teamCode: string, number: number, delta: number) => Promise<void>;
   readOnly?: boolean;
@@ -17,15 +16,9 @@ interface GroupSectionProps {
 }
 
 export default function GroupSection({
-  groupName,
-  teams,
-  quantityMap,
-  
-  onToggle,
-  onQuantityChange,
-  readOnly = false,
-  nums,
+  groupName, teams, quantityMap, onToggle, onQuantityChange, readOnly = false, nums,
 }: GroupSectionProps) {
+  // Modal agora só abre com long press / clique longo (info detalhada)
   const [modal, setModal] = useState<{
     teamCode: string; teamName: string; teamFlag: string; number: number;
   } | null>(null);
@@ -81,8 +74,18 @@ export default function GroupSection({
                     teamName={team.name}
                     teamFlag={team.flag}
                     quantity={qty}
-                    
-                    onClick={() => setModal({ teamCode: team.code, teamName: team.name, teamFlag: team.flag, number: num })}
+                    // Clique rápido → marca/desmarca direto (sem modal)
+                    onClick={!readOnly && onToggle
+                      ? () => onToggle(team.code, num)
+                      : readOnly
+                      ? () => setModal({ teamCode: team.code, teamName: team.name, teamFlag: team.flag, number: num })
+                      : undefined
+                    }
+                    // Clique longo → abre modal com detalhes
+                    onLongPress={onToggle
+                      ? () => setModal({ teamCode: team.code, teamName: team.name, teamFlag: team.flag, number: num })
+                      : undefined
+                    }
                     onQuantityChange={onQuantityChange ? (delta) => onQuantityChange(team.code, num, delta) : undefined}
                     readOnly={readOnly}
                   />
@@ -102,7 +105,7 @@ export default function GroupSection({
           teamFlag={modal.teamFlag}
           number={modal.number}
           collected={(quantityMap[`${modal.teamCode}_${modal.number}`] ?? 0) >= 1}
-          onToggle={onToggle ? () => onToggle(modal.teamCode, modal.number) : undefined}
+          onToggle={onToggle ? async () => { await onToggle(modal.teamCode, modal.number); setModal(null); } : undefined}
           readOnly={readOnly}
         />
       )}
