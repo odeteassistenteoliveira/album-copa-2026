@@ -36,14 +36,15 @@ export default async function PublicAlbumPage({ params }: Props) {
 
   const { data: stickers } = await supabase
     .from("stickers")
-    .select("team_code, number, collected")
-    .eq("album_id", album.id)
-    .eq("collected", true);
+    .select("team_code, number, quantity, collected")
+    .eq("album_id", album.id);
 
-  const collectedMap: Record<string, boolean> = {};
+  // Monta quantityMap com compatibilidade retroativa
+  const quantityMap: Record<string, number> = {};
   for (const s of stickers || []) {
-    collectedMap[`${s.team_code}_${s.number}`] = true;
+    const qty = (s.quantity ?? 0) > 0 ? s.quantity : s.collected ? 1 : 0;
+    quantityMap[`${s.team_code}_${s.number}`] = qty;
   }
 
-  return <PublicAlbumClient album={album} collectedMap={collectedMap} />;
+  return <PublicAlbumClient album={album} quantityMap={quantityMap} />;
 }
