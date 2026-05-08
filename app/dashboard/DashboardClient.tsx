@@ -1,55 +1,57 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { createBrowserClient } from "@/lib/supabase";
 import { GROUPS, SPECIAL, getTotalStickers } from "@/lib/data";
 import AlbumStats from "@/components/AlbumStats";
 import GroupSection from "@/components/GroupSection";
 import ShareButton from "@/components/ShareButton";
-import InstallPWA from "@/components/InstallPWA";
 import { Album } from "@/lib/types";
 
 interface DashboardClientProps {
   album: Album;
-  initialCollected: Record<string, boolean>;
+  initialQuantityMap: Record<string, number>;
   userId: string;
 }
 
-export default function DashboardClient({ album, initialCollected }: DashboardClientProps) {
-  const [collectedMap, setCollectedMap] = useState(initialCollected);
+export default function DashboardClient({ album, initialQuantityMap }: DashboardClientProps) {
+  const [quantityMap, setQuantityMap] = useState(initialQuantityMap);
   const [imageCache] = useState<Record<string, string | null>>({});
-  const [showQR, setShowQR] = useState(false);
-  const supabase = createBrowserClient();
 
   const total = getTotalStickers();
-  const collected = Object.values(collectedMap).filter(Boolean).length;
+  const collected = Object.values(quantityMap).filter(q => q >= 1).length;
+  const totalDupes = Object.values(quantityMap).filter(q => q >= 2).reduce((acc, q) => acc + (q - 1), 0);
 
-  const handleToggle = useCallback(
-    async (teamCode: string, number: number) => {
-      const key = `${teamCode}_${number}`;
-      const currentlyCollected = !!collectedMap[key];
-      const newCollected = !currentlyCollected;
+  const handleToggle = useCallback(async (teamCode: string, number: number) => {
+    const key = `${teamCode}_${number}`;
+    const current = quantityMap[key] ?? 0;
+    const newQty = current >= 1 ? 0 : 1;
 
-      setCollectedMap((prev) => ({ ...prev, [key]: newCollected }));
+    setQuantityMap(prev => ({ ...prev, [key]: newQty }));
 
-      try {
-        const res = await fetch("/api/sticker", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ album_id: album.id, team_code: teamCode, number, collected: newCollected }),
-        });
-        if (!res.ok) {
-          setCollectedMap((prev) => ({ ...prev, [key]: currentlyCollected }));
-        }
-      } catch {
-        setCollectedMap((prev) => ({ ...prev, [key]: currentlyCollected }));
-      }
-    },
-    [collectedMap, album.id, supabase]
-  );
+    const res = await fetch("/api/sticker", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ album_id: album.id, team_code: teamCode, number, collected: newQty >= 1, quantity: newQty }),
+    });
 
-  const tradeUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/trocar/${album.slug}`;
-  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(tradeUrl)}&bgcolor=0d0d1a&color=facc15&margin=12`;
+    if (!res.ok) setQuantityMap(prev => ({ ...prev, [key]: current }));
+  }, [quantityMap, album.id]);
+
+  const handleQuantityChange = useCallback(async (teamCode: string, number: number, delta: number) => {
+    const key = `${teamCode}_${number}`;
+    const current = quantityMap[key] ?? 0;
+    const newQty = Math.max(0, current + delta);
+
+    setQuantityMap(prev => ({ ...prev, [key]: newQty }));
+
+    const res = await fetch("/api/sticker", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ album_id: album.id, team_code: teamCode, number, quantity: newQty }),
+    });
+
+    if (!res.ok) setQuantityMap(prev => ({ ...prev, [key]: current }));
+  }, [quantityMap, album.id]);
 
   return (
     <div className="min-h-screen bg-dark">
@@ -64,22 +66,27 @@ export default function DashboardClient({ album, initialCollected }: DashboardCl
           <AlbumStats collected={collected} total={total} albumName={album.name} compact />
 
           <div className="flex items-center gap-2">
-            {/* QR de trocas */}
-            <button
-              onClick={() => setShowQR(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-dark border border-dark-border text-gray-300 hover:border-yellow-400/50 hover:text-yellow-400 transition-all text-sm font-nunito"
-              title="QR Code para trocas"
+            {totalDupes > 0 && (
+              <a
+                href="/trocas"
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-colors"
+                title="Encontrar trocas"
+              >
+                <span>🔄</span>
+                <span className="hidden sm:inline">Trocas</span>
+                <span className="bg-white/20 rounded-full px-1.5 text-xs">{totalDupes}</span>
+              </a>
+            )}
+            <a
+              href="/trocas"
+              className="text-gray-400 hover:text-white text-sm font-nunito transition-colors hidden sm:block"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                <rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3m0 4h4m-4-4v4m0 0h-3"/>
-              </svg>
-              <span className="hidden sm:inline">Trocar</span>
-            </button>
-
-            <InstallPWA />
+              Trocas
+            </a>
             <ShareButton slug={album.slug} />
-
+            <a href="/perfil" className="text-gray-500 hover:text-white text-sm font-nunito transition-colors" title="Perfil">
+              👤
+            </a>
             <a href="/api/auth/signout" className="text-gray-500 hover:text-white text-sm font-nunito transition-colors">
               Sair
             </a>
@@ -88,18 +95,41 @@ export default function DashboardClient({ album, initialCollected }: DashboardCl
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="mb-6">
           <AlbumStats collected={collected} total={total} albumName={album.name} />
         </div>
+
+        {/* Banner de repetidas */}
+        {totalDupes > 0 && (
+          <a href="/trocas" className="block mb-8 bg-blue-900/30 border border-blue-600/40 rounded-xl p-4 hover:border-blue-500/60 transition-colors">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-300 font-bebas text-lg">🔄 Você tem {totalDupes} figurinha{totalDupes > 1 ? "s" : ""} repetida{totalDupes > 1 ? "s" : ""}</p>
+                <p className="text-gray-400 text-sm font-nunito">Encontre colecionadores para trocar →</p>
+              </div>
+              <span className="text-blue-400 text-2xl">→</span>
+            </div>
+          </a>
+        )}
+
+        {/* Dica de repetidas */}
+        {totalDupes === 0 && collected > 0 && (
+          <div className="mb-6 bg-dark-card border border-dark-border rounded-xl p-4">
+            <p className="text-gray-400 text-sm font-nunito">
+              💡 <span className="text-gray-300">Tem figurinhas repetidas?</span> Use o botão <span className="text-blue-400 font-bold">+</span> abaixo de cada figurinha coletada para marcá-las e encontrar pessoas para trocar.
+            </p>
+          </div>
+        )}
 
         {GROUPS.map((group) => (
           <GroupSection
             key={group.name}
             groupName={group.name}
             teams={group.teams}
-            collectedMap={collectedMap}
+            quantityMap={quantityMap}
             imageCache={imageCache}
             onToggle={handleToggle}
+            onQuantityChange={handleQuantityChange}
             readOnly={false}
           />
         ))}
@@ -109,66 +139,15 @@ export default function DashboardClient({ album, initialCollected }: DashboardCl
             key={special.code}
             groupName={`${special.flag} ${special.name}`}
             teams={[{ code: special.code, name: special.name, flag: special.flag }]}
-            collectedMap={collectedMap}
+            quantityMap={quantityMap}
             imageCache={imageCache}
             onToggle={handleToggle}
+            onQuantityChange={handleQuantityChange}
             readOnly={false}
             nums={special.nums}
           />
         ))}
       </main>
-
-      {/* Modal QR Code */}
-      {showQR && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setShowQR(false)}
-        >
-          <div
-            className="bg-dark-card border border-dark-border rounded-2xl p-6 max-w-sm w-full text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="font-bebas text-2xl text-yellow-400 mb-1">Meu QR Code de Trocas</h2>
-            <p className="text-gray-400 font-nunito text-sm mb-5">
-              Outro usuário escaneia e o sistema cruza automaticamente as figurinhas de cada um
-            </p>
-
-            {/* QR Code */}
-            <div className="bg-dark rounded-xl p-4 inline-block mb-5 border border-dark-border">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={qrSrc} alt="QR Code" className="w-48 h-48 rounded-lg" />
-            </div>
-
-            <p className="text-gray-500 font-nunito text-xs mb-4 break-all px-2">{tradeUrl}</p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => { navigator.clipboard.writeText(tradeUrl); }}
-                className="flex-1 bg-dark border border-dark-border text-gray-300 hover:text-white font-nunito text-sm py-2.5 rounded-xl transition-all"
-              >
-                📋 Copiar link
-              </button>
-              <button
-                onClick={async () => {
-                  if (navigator.share) {
-                    await navigator.share({ title: "Trocar figurinhas — Copa 2026", url: tradeUrl });
-                  }
-                }}
-                className="flex-1 bg-yellow-400 text-black font-bebas text-lg py-2.5 rounded-xl hover:bg-yellow-300 transition-all"
-              >
-                Compartilhar
-              </button>
-            </div>
-
-            <button
-              onClick={() => setShowQR(false)}
-              className="mt-4 text-gray-600 hover:text-gray-400 font-nunito text-sm transition-colors"
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
