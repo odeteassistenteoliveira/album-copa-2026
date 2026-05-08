@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { STAR_PLAYERS } from "@/lib/data";
+import { PLAYER_NAMES } from "@/lib/data";
 
 interface StickerModalProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ export default function StickerModal({
 
   if (!isOpen) return null;
 
-  const playerName = STAR_PLAYERS[teamCode];
+  const playerName = PLAYER_NAMES[teamCode]?.[number] || null;
 
   const handleToggle = async () => {
     if (!onToggle) return;
@@ -37,40 +37,49 @@ export default function StickerModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
-        className={`relative w-full max-w-sm rounded-2xl overflow-hidden border-2 shadow-2xl bg-dark-card
+        className={`relative w-full max-w-xs rounded-2xl overflow-hidden border-2 shadow-2xl bg-dark-card
           ${collected ? "border-yellow-400 shadow-gold" : "border-gray-700"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Área da figurinha — sem foto */}
-        <div className="relative h-48 bg-gradient-to-b from-gray-900 to-dark-card flex items-center justify-center">
-          <span className="text-8xl">{teamFlag}</span>
+        {/* Área visual da figurinha */}
+        <div className={`relative h-44 flex flex-col items-center justify-center
+          ${collected
+            ? "bg-gradient-to-b from-yellow-900/40 to-dark-card"
+            : "bg-gradient-to-b from-gray-900 to-dark-card"}`}
+        >
+          <span className="text-7xl mb-1">{teamFlag}</span>
+          <span className={`font-bebas text-lg ${collected ? "text-yellow-400" : "text-gray-600"}`}>
+            #{number}
+          </span>
 
           {collected && (
-            <div className="absolute top-3 right-3 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full">
+            <div className="absolute top-3 right-3 bg-yellow-400 text-black text-xs font-bebas px-2 py-0.5 rounded-full">
               ✓ COLETADA
             </div>
           )}
           <button
             onClick={onClose}
-            className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+            className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors text-sm"
           >✕</button>
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-dark-card to-transparent h-12" />
         </div>
 
+        {/* Info da figurinha */}
         <div className="p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <div>
-              <h3 className="font-bebas text-2xl text-white leading-none">{teamName}</h3>
-              {playerName && <p className="text-yellow-400 text-sm font-nunito">{playerName}</p>}
-            </div>
-            <div className="ml-auto">
-              <div className="font-bebas text-3xl text-yellow-400 leading-none">#{number}</div>
-            </div>
+          <div className="mb-4">
+            <h3 className="font-bebas text-2xl text-white leading-tight">{teamName}</h3>
+            {playerName ? (
+              <p className="text-yellow-400 font-bebas text-xl leading-tight mt-0.5">{playerName}</p>
+            ) : (
+              <p className="text-gray-600 text-sm font-nunito mt-0.5">Figurinha #{number}</p>
+            )}
           </div>
 
-          <div className="h-px bg-dark-border my-4" />
+          <div className="h-px bg-dark-border mb-4" />
 
           {!readOnly ? (
             <button
@@ -82,11 +91,11 @@ export default function StickerModal({
                   : "bg-yellow-400 text-black hover:bg-yellow-300 shadow-gold"
                 } ${toggling ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {toggling ? "..." : collected ? "❌ Remover Figurinha" : "✅ Tenho esta figurinha!"}
+              {toggling ? "..." : collected ? "❌ Remover" : "✅ Tenho esta figurinha!"}
             </button>
           ) : (
             <p className="text-center text-gray-500 text-sm font-nunito">
-              {collected ? "✓ Esta figurinha foi coletada" : "Figurinha ainda não coletada"}
+              {collected ? "✓ Coletada" : "Ainda não coletada"}
             </p>
           )}
         </div>
