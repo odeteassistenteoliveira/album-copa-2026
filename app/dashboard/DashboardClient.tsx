@@ -62,14 +62,23 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
 
           <div className="flex items-center gap-1.5 shrink-0">
             {totalDupes > 0 && (
-              <a
-                href="/trocas"
-                className="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-400 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
-              >
-                <span>🔄</span>
-                <span className="hidden sm:inline">Trocar</span>
-                <span className="bg-white/25 rounded-full px-1.5 text-xs font-bold">{totalDupes}</span>
-              </a>
+              <>
+                <a
+                  href="/repetidas"
+                  className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
+                >
+                  <span>🔁</span>
+                  <span className="hidden sm:inline">Repetidas</span>
+                  <span className="bg-white/25 rounded-full px-1.5 text-xs font-bold">{totalDupes}</span>
+                </a>
+                <a
+                  href="/trocas"
+                  className="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-400 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
+                >
+                  <span>🔄</span>
+                  <span className="hidden sm:inline">Trocas</span>
+                </a>
+              </>
             )}
             <InstallPWA />
             <ShareButton slug={album.slug} compact />
@@ -86,7 +95,7 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
 
         {totalDupes > 0 && (
           <a
-            href="/trocas"
+            href="/repetidas"
             className="block mb-8 rounded-2xl overflow-hidden hover:scale-[1.01] transition-transform active:scale-[0.99]"
             style={{ background: "linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%)" }}
           >
@@ -95,15 +104,17 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
                 <span className="text-3xl">🔄</span>
                 <div>
                   <p className="text-white font-bebas text-xl leading-tight">
-                    Você tem {totalDupes} figurinha{totalDupes > 1 ? "s" : ""} repetida{totalDupes > 1 ? "s" : ""}!
+                    {totalDupes} figurinha{totalDupes > 1 ? "s" : ""} repetida{totalDupes > 1 ? "s" : ""} para trocar!
                   </p>
                   <p className="text-orange-100 text-sm font-nunito">
-                    Encontre colecionadores perto de você e complete o álbum
+                    Ver lista e encontrar colecionadores para trocar
                   </p>
                 </div>
               </div>
-              <div className="shrink-0 bg-white/20 hover:bg-white/30 transition-colors rounded-xl px-4 py-2 text-white font-bebas text-base whitespace-nowrap">
-                Buscar trocas →
+              <div className="flex flex-col gap-2 shrink-0">
+                <div className="bg-white/20 hover:bg-white/30 transition-colors rounded-xl px-4 py-2 text-white font-bebas text-base whitespace-nowrap text-center">
+                  Ver lista →
+                </div>
               </div>
             </div>
           </a>
