@@ -1,4 +1,5 @@
 import Link from "next/link";
+import InstallPWA from "@/components/InstallPWA";
 
 export default function Home() {
   return (
@@ -49,9 +50,10 @@ export default function Home() {
           🎴 Criar meu álbum grátis
         </Link>
 
-        <p className="text-gray-600 text-sm mt-4 font-nunito">
-          Grátis e sem instalar nada. Funciona no celular!
-        </p>
+        <div className="flex flex-col items-center mt-4 gap-1">
+          <InstallPWA variant="banner" />
+          <p className="text-gray-600 text-xs font-nunito">Ou acesse pelo navegador — é 100% grátis!</p>
+        </div>
       </section>
 
       {/* DESTAQUE — Funcionalidade de Trocas */}
