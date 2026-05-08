@@ -9,7 +9,7 @@ interface GroupSectionProps {
   groupName: string;
   teams: Array<{ code: string; name: string; flag: string }>;
   quantityMap: Record<string, number>;
-  imageCache?: Record<string, string | null>;
+  
   onToggle?: (teamCode: string, number: number) => Promise<void>;
   onQuantityChange?: (teamCode: string, number: number, delta: number) => Promise<void>;
   readOnly?: boolean;
@@ -20,7 +20,7 @@ export default function GroupSection({
   groupName,
   teams,
   quantityMap,
-  imageCache = {},
+  
   onToggle,
   onQuantityChange,
   readOnly = false,
@@ -81,7 +81,7 @@ export default function GroupSection({
                     teamName={team.name}
                     teamFlag={team.flag}
                     quantity={qty}
-                    imageUrl={imageCache[team.code]}
+                    
                     onClick={() => setModal({ teamCode: team.code, teamName: team.name, teamFlag: team.flag, number: num })}
                     onQuantityChange={onQuantityChange ? (delta) => onQuantityChange(team.code, num, delta) : undefined}
                     readOnly={readOnly}
