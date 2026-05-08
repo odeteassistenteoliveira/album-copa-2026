@@ -1,0 +1,53 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-bebas: "Bebas Neue", cursive;
+  --font-nunito: "Nunito", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: #0a0a1a;
+  color: white;
+  font-family: "Nunito", sans-serif;
+}
+
+/* Scrollbar customizada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e1e3a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFD700;
+}
+
+/* Utilitários customizados */
+@layer utilities {
+  .shadow-gold {
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  }
+  .shadow-gold-sm {
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+  }
+  .bg-dark { background-color: #0a0a1a; }
+  .bg-dark-card { background-color: #12122a; }
+  .border-dark-border { border-color: #1e1e3a; }
+}
