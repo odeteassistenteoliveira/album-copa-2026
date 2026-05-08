@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 interface StickerCardProps {
   number: number;
@@ -8,67 +8,52 @@ interface StickerCardProps {
   teamName: string;
   teamFlag: string;
   quantity: number;
-  onClick?: () => void;      // marca/desmarca (acionado após 2s segurando)
-  onLongPress?: () => void;  // não usado mais, mantido por compatibilidade
+  onClick?: () => void;       // duplo toque → marca/desmarca
+  onLongPress?: () => void;   // segurar → abre card de detalhes
   onQuantityChange?: (delta: number) => void;
   readOnly?: boolean;
 }
 
-const HOLD_MS         = 2000; // 2s segurando para marcar
-const SCROLL_THRESHOLD = 20;
+const DOUBLE_TAP_MS   = 300;  // intervalo máximo entre dois toques para contar como duplo
+const LONG_PRESS_MS   = 500;  // tempo segurando para abrir card
+const SCROLL_THRESHOLD = 15;
 
 export default function StickerCard({
-  number, teamFlag, quantity, onClick, onQuantityChange, readOnly = false,
+  number, teamFlag, quantity, onClick, onLongPress, onQuantityChange, readOnly = false,
 }: StickerCardProps) {
   const collected = quantity >= 1;
   const hasDupe   = quantity >= 2;
 
-  const [progress, setProgress] = useState(0); // 0–100 para a barra de progresso
-  const pressTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const frameRef    = useRef<number | null>(null);
-  const startTime   = useRef<number>(0);
-  const startPos    = useRef<{ x: number; y: number } | null>(null);
-  const isScrolling = useRef(false);
-  const fired       = useRef(false);
+  // ── refs ─────────────────────────────────────────────────────────────────
+  const lastTap      = useRef<number>(0);
+  const singleTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pressTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startPos     = useRef<{ x: number; y: number } | null>(null);
+  const isScrolling  = useRef(false);
+  const didLongPress = useRef(false);
+  const touchDone    = useRef(false); // bloqueia o click sintético do browser
 
-  const startHold = () => {
-    fired.current    = false;
-    isScrolling.current = false;
-    startTime.current = Date.now();
-    setProgress(0);
-
-    // Anima a barra de progresso
-    const animate = () => {
-      const elapsed = Date.now() - startTime.current;
-      const pct     = Math.min((elapsed / HOLD_MS) * 100, 100);
-      setProgress(pct);
-      if (pct < 100) {
-        frameRef.current = requestAnimationFrame(animate);
-      }
-    };
-    frameRef.current = requestAnimationFrame(animate);
-
-    // Dispara a ação ao fim dos 2s
-    pressTimer.current = setTimeout(() => {
-      if (!isScrolling.current) {
-        fired.current = true;
-        setProgress(0);
-        onClick?.();
-      }
-    }, HOLD_MS);
-  };
-
-  const cancelHold = () => {
-    if (pressTimer.current) clearTimeout(pressTimer.current);
-    if (frameRef.current)   cancelAnimationFrame(frameRef.current);
-    setProgress(0);
+  const clearTimers = () => {
+    if (singleTimer.current) clearTimeout(singleTimer.current);
+    if (pressTimer.current)  clearTimeout(pressTimer.current);
   };
 
   // ── Touch ────────────────────────────────────────────────────────────────
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
-    startPos.current = { x: t.clientX, y: t.clientY };
-    startHold();
+    startPos.current    = { x: t.clientX, y: t.clientY };
+    isScrolling.current  = false;
+    didLongPress.current = false;
+    touchDone.current    = false;
+
+    // Long press
+    pressTimer.current = setTimeout(() => {
+      if (!isScrolling.current) {
+        didLongPress.current = true;
+        touchDone.current    = true;
+        onLongPress?.();
+      }
+    }, LONG_PRESS_MS);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
@@ -78,48 +63,76 @@ export default function StickerCard({
     const dy = Math.abs(t.clientY - startPos.current.y);
     if (dx > SCROLL_THRESHOLD || dy > SCROLL_THRESHOLD) {
       isScrolling.current = true;
-      cancelHold();
+      clearTimers();
     }
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault(); // evita click sintético
-    cancelHold();
+    e.preventDefault(); // evita click sintético do browser
+    if (pressTimer.current) clearTimeout(pressTimer.current);
+    if (isScrolling.current || didLongPress.current) return;
+
+    touchDone.current = true;
+    const now = Date.now();
+
+    if (now - lastTap.current < DOUBLE_TAP_MS) {
+      // Duplo toque — marca/desmarca
+      if (singleTimer.current) clearTimeout(singleTimer.current);
+      lastTap.current = 0;
+      onClick?.();
+    } else {
+      // Primeiro toque — espera para ver se vem um segundo
+      lastTap.current = now;
+    }
   };
 
   // ── Mouse (desktop) ──────────────────────────────────────────────────────
-  const onMouseDown = () => startHold();
-  const onMouseUp   = () => cancelHold();
+  const handleClick = () => {
+    if (touchDone.current) { touchDone.current = false; return; }
+    if (didLongPress.current) return;
+
+    const now = Date.now();
+    if (now - lastTap.current < DOUBLE_TAP_MS) {
+      if (singleTimer.current) clearTimeout(singleTimer.current);
+      lastTap.current = 0;
+      onClick?.();
+    } else {
+      lastTap.current = now;
+    }
+  };
+
+  const onMouseDown = () => {
+    didLongPress.current = false;
+    pressTimer.current = setTimeout(() => {
+      didLongPress.current = true;
+      onLongPress?.();
+    }, LONG_PRESS_MS);
+  };
+
+  const onMouseUp = () => {
+    if (pressTimer.current) clearTimeout(pressTimer.current);
+  };
 
   return (
     <div className="flex flex-col items-center gap-0.5">
       <button
+        onClick={handleClick}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        // Sem onClick — ação só ocorre ao completar os 2s
-        onClick={(e) => e.preventDefault()}
         disabled={readOnly && !collected}
         className={`
           relative w-full aspect-[2/3] rounded-lg overflow-hidden border-2 transition-all duration-100 select-none
           ${collected
-            ? "border-yellow-400 bg-gradient-to-b from-yellow-800/40 to-yellow-900/30"
-            : "border-gray-700 bg-dark-card"
+            ? "border-yellow-400 bg-gradient-to-b from-yellow-800/40 to-yellow-900/30 active:scale-90"
+            : "border-gray-700 bg-dark-card active:scale-90 active:bg-yellow-900/10"
           }
           ${!readOnly ? "cursor-pointer" : collected ? "cursor-default" : "cursor-default opacity-50"}
         `}
       >
-        {/* Barra de progresso do hold */}
-        {progress > 0 && (
-          <div
-            className="absolute bottom-0 left-0 h-1 bg-yellow-400 transition-none z-10"
-            style={{ width: `${progress}%` }}
-          />
-        )}
-
         {collected ? (
           <>
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">

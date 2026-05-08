@@ -109,13 +109,17 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
           </a>
         )}
 
-        {totalDupes === 0 && collected > 0 && (
-          <div className="mb-6 bg-dark-card border border-dark-border rounded-xl p-4">
-            <p className="text-gray-400 text-sm font-nunito">
-              💡 <span className="text-gray-300">Tem figurinhas repetidas?</span> Use o botão <span className="text-blue-400 font-bold">+</span> abaixo de cada figurinha para marcá-las e encontrar pessoas para trocar.
-            </p>
-          </div>
-        )}
+        {/* Instrução de uso */}
+        <div className="mb-6 bg-dark-card border border-dark-border rounded-xl px-4 py-3 flex items-center gap-3">
+          <span className="text-lg shrink-0">💡</span>
+          <p className="text-gray-400 text-xs font-nunito leading-relaxed">
+            <span className="text-yellow-400 font-bold">Duplo toque</span> para marcar ou desmarcar uma figurinha.{" "}
+            <span className="text-gray-300 font-bold">Segure</span> para ver o nome do jogador e mais opções.{" "}
+            {totalDupes === 0 && collected > 0 && (
+              <span>Use o <span className="text-blue-400 font-bold">+</span> abaixo da figurinha para marcar repetidas.</span>
+            )}
+          </p>
+        </div>
 
         {GROUPS.map((group) => (
           <GroupSection
