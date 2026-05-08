@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import InstallBanner from "@/components/InstallBanner";
 
 export const metadata: Metadata = {
   title: "Álbum Copa 2026 🏆",
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `
         }} />
       </head>
-      <body className="min-h-screen bg-dark antialiased">{children}</body>
+      <body className="min-h-screen bg-dark antialiased">{children}<InstallBanner /></body>
     </html>
   );
 }
