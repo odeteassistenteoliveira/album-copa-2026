@@ -29,6 +29,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="Copa 2026" />
         <meta name="theme-color" content="#facc15" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function(){});
+              });
+            }
+          `
+        }} />
       </head>
       <body className="min-h-screen bg-dark antialiased">{children}</body>
     </html>

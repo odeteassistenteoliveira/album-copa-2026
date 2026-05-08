@@ -9,71 +9,120 @@ interface BeforeInstallPromptEvent extends Event {
 
 export default function InstallPWA() {
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
-  const [showIOS, setShowIOS] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [showIOSModal, setShowIOSModal] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
-    // Detectar iOS
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isInStandalone = window.matchMedia("(display-mode: standalone)").matches
-      || (navigator as { standalone?: boolean }).standalone === true;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (navigator as { standalone?: boolean }).standalone === true;
 
-    if (isInStandalone) { setInstalled(true); return; }
-    if (isIOS) { setShowIOS(true); return; }
+    if (standalone) { setIsInstalled(true); return; }
+    if (ios) { setIsIOS(true); return; }
 
     const handler = (e: Event) => {
       e.preventDefault();
       setPrompt(e as BeforeInstallPromptEvent);
     };
     window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => setInstalled(true));
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => setIsInstalled(true));
+
+    // Se após 3s o prompt não aparecer, mostra botão de fallback manual
+    const t = setTimeout(() => setShowFallback(true), 3000);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      clearTimeout(t);
+    };
   }, []);
 
   const handleInstall = async () => {
-    if (!prompt) return;
-    await prompt.prompt();
-    const { outcome } = await prompt.userChoice;
-    if (outcome === "accepted") setInstalled(true);
-    setPrompt(null);
+    if (prompt) {
+      await prompt.prompt();
+      const { outcome } = await prompt.userChoice;
+      if (outcome === "accepted") setIsInstalled(true);
+      setPrompt(null);
+    }
   };
 
-  if (installed) return null;
+  if (isInstalled) return null;
 
-  if (showIOS) {
+  // iOS — botão que abre modal com instrução
+  if (isIOS) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 bg-dark-card border border-yellow-400/50 rounded-2xl p-4 z-50 shadow-gold">
+      <>
         <button
-          onClick={() => setShowIOS(false)}
-          className="absolute top-3 right-3 text-gray-500 hover:text-white text-lg"
-        >✕</button>
-        <div className="flex items-start gap-3">
-          <span className="text-2xl">📱</span>
-          <div>
-            <p className="text-white font-bebas text-lg">Salvar na tela inicial</p>
-            <p className="text-gray-400 text-sm font-nunito mt-1">
-              Toque em <span className="text-yellow-400">Compartilhar</span> <span className="text-lg">⎙</span> e depois em{" "}
-              <span className="text-yellow-400">&quot;Adicionar à tela inicial&quot;</span>
-            </p>
+          onClick={() => setShowIOSModal(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 transition-all text-xs font-nunito"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M12 16V4m0 12l-4-4m4 4l4-4"/><path d="M3 20h18"/>
+          </svg>
+          Instalar
+        </button>
+
+        {showIOSModal && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowIOSModal(false)}>
+            <div className="bg-dark-card border border-yellow-400/40 rounded-2xl p-5 w-full max-w-sm shadow-gold mb-4" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-white font-bebas text-xl">Salvar na tela inicial</p>
+                <button onClick={() => setShowIOSModal(false)} className="text-gray-500 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="space-y-3 font-nunito text-sm text-gray-300">
+                <div className="flex items-center gap-3 bg-dark rounded-xl p-3">
+                  <span className="text-2xl">1️⃣</span>
+                  <p>Toque no botão <span className="text-yellow-400 font-bold">Compartilhar</span> na barra do Safari <span className="text-lg">⎙</span></p>
+                </div>
+                <div className="flex items-center gap-3 bg-dark rounded-xl p-3">
+                  <span className="text-2xl">2️⃣</span>
+                  <p>Role para baixo e toque em <span className="text-yellow-400 font-bold">&quot;Adicionar à Tela de Início&quot;</span></p>
+                </div>
+                <div className="flex items-center gap-3 bg-dark rounded-xl p-3">
+                  <span className="text-2xl">3️⃣</span>
+                  <p>Toque em <span className="text-yellow-400 font-bold">Adicionar</span> no canto superior direito</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
+      </>
     );
   }
 
-  if (!prompt) return null;
+  // Android/Desktop com prompt nativo disponível
+  if (prompt) {
+    return (
+      <button
+        onClick={handleInstall}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 transition-all text-xs font-nunito"
+        title="Instalar app na tela inicial"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M12 16V4m0 12l-4-4m4 4l4-4"/><path d="M3 20h18"/>
+        </svg>
+        Instalar
+      </button>
+    );
+  }
 
-  return (
-    <button
-      onClick={handleInstall}
-      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/20 transition-all text-sm font-nunito"
-      title="Instalar app"
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 16V4m0 12l-4-4m4 4l4-4"/>
-        <path d="M3 20h18"/>
-      </svg>
-      <span className="hidden sm:inline">Instalar app</span>
-    </button>
-  );
+  // Fallback: navegador não suporta ou bloqueou o prompt
+  if (showFallback) {
+    return (
+      <button
+        onClick={() => alert('Para instalar:\n\nChrome/Android: toque nos 3 pontinhos (⋮) → "Adicionar à tela inicial"\n\nSafari/iOS: toque em Compartilhar ⎙ → "Adicionar à Tela de Início"')}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-600 text-gray-400 hover:border-yellow-400/40 hover:text-yellow-400 transition-all text-xs font-nunito"
+        title="Como instalar o app"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M12 16V4m0 12l-4-4m4 4l4-4"/><path d="M3 20h18"/>
+        </svg>
+        Instalar
+      </button>
+    );
+  }
+
+  return null;
 }
