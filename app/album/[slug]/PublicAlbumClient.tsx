@@ -43,9 +43,9 @@ export default function PublicAlbumClient({ album, quantityMap }: PublicAlbumCli
           <div className="max-w-3xl mx-auto flex items-center gap-3">
             <button
               onClick={() => setActiveTeam(null)}
-              className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors text-lg shrink-0"
+              className="flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 active:scale-95 text-black font-bebas text-sm px-3 py-1.5 rounded-xl transition-all shrink-0 shadow"
             >
-              ←
+              ← Voltar
             </button>
             <span className="text-2xl shrink-0">{flag}</span>
             <div className="flex-1 min-w-0">
