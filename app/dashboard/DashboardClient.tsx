@@ -152,13 +152,19 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
           <div className="flex items-center shrink-0 relative">
             <button
               onClick={() => setMenuOpen(o => !o)}
-              className="flex items-center justify-center w-9 h-9 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-bold text-lg relative"
+              className="relative flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 text-white font-bebas text-sm px-3 py-2 rounded-xl transition-all active:scale-95"
               title="Menu"
             >
-              ⋯
-              {/* Badge de repetidas sobre o menu */}
+              {/* Ícone hamburguer */}
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                <rect y="3" width="20" height="2.5" rx="1.25"/>
+                <rect y="8.75" width="20" height="2.5" rx="1.25"/>
+                <rect y="14.5" width="20" height="2.5" rx="1.25"/>
+              </svg>
+              <span>Menu</span>
+              {/* Badge de repetidas */}
               {totalDupes > 0 && (
-                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs font-bold font-nunito rounded-full w-4 h-4 flex items-center justify-center leading-none">
+                <span className="bg-blue-500 text-white text-xs font-bold font-nunito rounded-full px-1.5 py-0.5 leading-none">
                   {totalDupes > 9 ? "9+" : totalDupes}
                 </span>
               )}
