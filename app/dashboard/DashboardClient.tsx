@@ -76,7 +76,7 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
           <div className="max-w-3xl mx-auto flex items-center gap-3">
             <button
               onClick={() => setActiveTeam(null)}
-              className="flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 active:scale-95 text-black font-bebas text-sm px-3 py-1.5 rounded-xl transition-all shrink-0 shadow"
+              className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 active:scale-95 text-black font-bebas text-lg px-4 py-2.5 rounded-2xl transition-all shrink-0 shadow-lg shadow-yellow-900/30"
             >
               ← Voltar
             </button>
