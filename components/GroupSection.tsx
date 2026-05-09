@@ -13,12 +13,14 @@ interface GroupSectionProps {
   onQuantityChange?: (teamCode: string, number: number, delta: number) => Promise<void>;
   readOnly?: boolean;
   nums?: number[];
+  /** Quando true, não exibe o cabeçalho de time (usado quando a página já tem esse contexto) */
+  hideteamHeader?: boolean;
 }
 
 export default function GroupSection({
-  groupName, teams, quantityMap, onToggle, onQuantityChange, readOnly = false, nums,
+  groupName, teams, quantityMap, onToggle, onQuantityChange,
+  readOnly = false, nums, hideteamHeader = false,
 }: GroupSectionProps) {
-  // Modal agora só abre com long press / clique longo (info detalhada)
   const [modal, setModal] = useState<{
     teamCode: string; teamName: string; teamFlag: string; number: number;
   } | null>(null);
@@ -30,17 +32,20 @@ export default function GroupSection({
   }, 0);
 
   return (
-    <section className="mb-10">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bebas text-2xl text-yellow-400 tracking-wide">{groupName}</h2>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-gray-400 font-nunito">{collectedInGroup}/{totalInGroup}</span>
-          <div className="w-20 h-2 bg-gray-800 rounded-full overflow-hidden">
-            <div className="h-full bg-yellow-400 rounded-full transition-all duration-500"
-              style={{ width: `${totalInGroup > 0 ? (collectedInGroup / totalInGroup) * 100 : 0}%` }} />
+    <section className="mb-6">
+      {/* Cabeçalho do grupo — só mostra se groupName não for vazio */}
+      {groupName && (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bebas text-2xl text-yellow-400 tracking-wide">{groupName}</h2>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-gray-400 font-nunito">{collectedInGroup}/{totalInGroup}</span>
+            <div className="w-20 h-2 bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-full bg-yellow-400 rounded-full transition-all duration-500"
+                style={{ width: `${totalInGroup > 0 ? (collectedInGroup / totalInGroup) * 100 : 0}%` }} />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {teams.map((team) => {
         const numbers = nums || Array.from({ length: STICKERS_PER_TEAM }, (_, i) => i + 1);
@@ -49,18 +54,21 @@ export default function GroupSection({
 
         return (
           <div key={team.code} className="mb-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg">{team.flag}</span>
-              <span className="font-bebas text-white text-lg tracking-wide">{team.name}</span>
-              <div className="ml-auto flex items-center gap-2">
-                {teamDupes > 0 && (
-                  <span className="bg-blue-900/40 border border-blue-700/40 text-blue-400 text-xs font-nunito px-2 py-0.5 rounded-full">
-                    {teamDupes} rep.
-                  </span>
-                )}
-                <span className="text-gray-500 text-xs font-nunito">{teamCollected}/{numbers.length}</span>
+            {/* Sub-cabeçalho do time — oculto quando hideteamHeader=true */}
+            {!hideteamHeader && (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">{team.flag}</span>
+                <span className="font-bebas text-white text-lg tracking-wide">{team.name}</span>
+                <div className="ml-auto flex items-center gap-2">
+                  {teamDupes > 0 && (
+                    <span className="bg-blue-900/40 border border-blue-700/40 text-blue-400 text-xs font-nunito px-2 py-0.5 rounded-full">
+                      {teamDupes} rep.
+                    </span>
+                  )}
+                  <span className="text-gray-500 text-xs font-nunito">{teamCollected}/{numbers.length}</span>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="grid grid-cols-10 sm:grid-cols-12 lg:grid-cols-14 xl:grid-cols-20 gap-1">
               {numbers.map((num) => {
@@ -74,15 +82,12 @@ export default function GroupSection({
                     teamName={team.name}
                     teamFlag={team.flag}
                     quantity={qty}
-                    // Clique rápido → marca/desmarca direto (sem modal)
-                    // Duplo toque: só MARCA (nunca desmarca — para desmarcar usa o card)
                     onClick={!readOnly && onToggle && qty === 0
                       ? () => onToggle(team.code, num)
                       : readOnly
                       ? () => setModal({ teamCode: team.code, teamName: team.name, teamFlag: team.flag, number: num })
                       : undefined
                     }
-                    // Clique longo → abre modal com detalhes
                     onLongPress={onToggle
                       ? () => setModal({ teamCode: team.code, teamName: team.name, teamFlag: team.flag, number: num })
                       : undefined
