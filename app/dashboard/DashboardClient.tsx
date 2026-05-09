@@ -27,6 +27,7 @@ type ActiveTeam = {
 export default function DashboardClient({ album, initialQuantityMap }: DashboardClientProps) {
   const [quantityMap, setQuantityMap] = useState(initialQuantityMap);
   const [activeTeam, setActiveTeam] = useState<ActiveTeam>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const total = getTotalStickers();
   const collected = Object.values(quantityMap).filter(q => q >= 1).length;
@@ -138,38 +139,79 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
     <div className="min-h-screen bg-dark">
       <header className="sticky top-0 z-40 bg-dark/95 backdrop-blur-sm border-b border-dark-border px-4 py-3">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+          {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xl">🏆</span>
             <span className="font-bebas text-xl text-yellow-400 hidden sm:block">Copa 2026</span>
           </div>
 
+          {/* Stats centralizados */}
           <AlbumStats collected={collected} total={total} albumName={album.name} compact />
 
+          {/* Ações */}
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* Repetidas — só aparece se tiver duplicatas */}
             {totalDupes > 0 && (
-              <>
-                <a href="/repetidas"
-                  className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
-                >
-                  <span>🔁</span>
-                  <span className="hidden sm:inline">Repetidas</span>
-                  <span className="bg-white/25 rounded-full px-1.5 text-xs font-bold">{totalDupes}</span>
-                </a>
-                <a href="/trocas"
-                  className="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-400 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
-                >
-                  <span>🔄</span>
-                  <span className="hidden sm:inline">Trocas</span>
-                </a>
-              </>
+              <a href="/repetidas"
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
+              >
+                <span>🔁</span>
+                <span className="hidden sm:inline">Repetidas</span>
+                <span className="bg-white/25 rounded-full px-1.5 text-xs font-bold">{totalDupes}</span>
+              </a>
             )}
+
+            {/* Comparar ao vivo (QR) — sempre visível */}
             <QRShare slug={album.slug} />
-            <a href="/ranking" className="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-yellow-400 text-lg transition-colors rounded-lg hover:bg-white/5" title="Ranking">🏆</a>
-            <a href="/exportar" className="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-green-400 text-lg transition-colors rounded-lg hover:bg-white/5" title="Exportar lista">📄</a>
-            <InstallPWA />
-            <ShareButton slug={album.slug} compact />
-            <a href="/perfil" className="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-white text-sm transition-colors rounded-lg hover:bg-white/5" title="Perfil">👤</a>
-            <a href="/api/auth/signout" className="text-gray-500 hover:text-white text-xs font-nunito transition-colors px-1 hidden sm:block">Sair</a>
+
+            {/* Menu ⋯ — agrupa itens secundários */}
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen(o => !o)}
+                className="flex items-center justify-center w-9 h-9 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-bold text-lg"
+                title="Mais opções"
+              >
+                ⋯
+              </button>
+
+              {menuOpen && (
+                <>
+                  {/* Overlay para fechar */}
+                  <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-52 bg-dark-card border border-dark-border rounded-2xl shadow-2xl z-50 overflow-hidden">
+                    <a href="/trocas" onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                      <span className="text-lg">🔄</span>
+                      <span className="font-bebas text-white text-base">Buscar Trocas</span>
+                    </a>
+                    <a href="/ranking" onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                      <span className="text-lg">🏆</span>
+                      <span className="font-bebas text-white text-base">Ranking Global</span>
+                    </a>
+                    <a href="/exportar" onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                      <span className="text-lg">📄</span>
+                      <span className="font-bebas text-white text-base">Exportar Faltantes</span>
+                    </a>
+                    <div className="border-b border-dark-border">
+                      <InstallPWA menuItem />
+                    </div>
+                    <a href="/perfil" onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                      <span className="text-lg">👤</span>
+                      <span className="font-bebas text-white text-base">Meu Perfil</span>
+                    </a>
+                    <ShareButton slug={album.slug} menuItem />
+                    <a href="/api/auth/signout"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-red-400">
+                      <span className="text-lg">🚪</span>
+                      <span className="font-bebas text-base">Sair</span>
+                    </a>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>

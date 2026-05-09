@@ -9,7 +9,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 type Mode = "hidden" | "prompt" | "ios" | "manual";
 
-export default function InstallPWA({ variant = "header" }: { variant?: "header" | "banner" }) {
+export default function InstallPWA({ variant = "header", menuItem = false }: { variant?: "header" | "banner"; menuItem?: boolean }) {
   const [mode, setMode] = useState<Mode>("hidden");
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOSModal, setShowIOSModal] = useState(false);
@@ -80,6 +80,22 @@ export default function InstallPWA({ variant = "header" }: { variant?: "header" 
         <p className="text-gray-600 text-xs font-nunito mt-2">
           {mode === "ios" ? "iPhone: Compartilhar ⎙ → Adicionar à Tela de Início" : "Funciona sem internet após instalar"}
         </p>
+        {showIOSModal && <IOSModal onClose={() => setShowIOSModal(false)} />}
+      </>
+    );
+  }
+
+  // ── VARIANTE MENU ITEM ────────────────────────────────────────────────
+  if (menuItem) {
+    return (
+      <>
+        <button
+          onClick={handleInstall}
+          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+        >
+          <span className="text-lg">📲</span>
+          <span className="font-bebas text-white text-base">{installing ? "Instalando…" : "Instalar App"}</span>
+        </button>
         {showIOSModal && <IOSModal onClose={() => setShowIOSModal(false)} />}
       </>
     );

@@ -5,9 +5,10 @@ import { useState } from "react";
 interface ShareButtonProps {
   slug: string;
   compact?: boolean;
+  menuItem?: boolean;
 }
 
-export default function ShareButton({ slug, compact = false }: ShareButtonProps) {
+export default function ShareButton({ slug, compact = false, menuItem = false }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const url =
@@ -43,6 +44,19 @@ export default function ShareButton({ slug, compact = false }: ShareButtonProps)
       handleCopy();
     }
   };
+
+  // Versão item de menu dropdown
+  if (menuItem) {
+    return (
+      <button
+        onClick={handleShare}
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border"
+      >
+        <span className="text-lg">{copied ? "✅" : "🔗"}</span>
+        <span className="font-bebas text-white text-base">{copied ? "Link copiado!" : "Compartilhar Álbum"}</span>
+      </button>
+    );
+  }
 
   // Versão compacta para o header — apenas ícone
   if (compact) {
