@@ -90,9 +90,9 @@ export default function SearchBar({ onSelect, quantityMap }: SearchBarProps) {
   };
 
   return (
-    <div className="relative w-full max-w-sm">
-      <div className="flex items-center gap-2 bg-dark-card border border-dark-border rounded-xl px-3 py-2 focus-within:border-yellow-400/60 transition-colors">
-        <span className="text-gray-500 text-sm">🔍</span>
+    <div className="relative w-full">
+      <div className="flex items-center gap-2 bg-gray-900 border-2 border-gray-600 rounded-xl px-3 py-2.5 focus-within:border-yellow-400 transition-colors shadow-inner">
+        <span className="text-gray-400 text-base">🔍</span>
         <input
           ref={inputRef}
           type="text"
@@ -101,7 +101,7 @@ export default function SearchBar({ onSelect, quantityMap }: SearchBarProps) {
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 150)}
           placeholder="BRA, BRA5, Vinicius…"
-          className="flex-1 bg-transparent text-white text-sm font-nunito outline-none placeholder-gray-600"
+          className="flex-1 bg-transparent text-white text-sm font-nunito outline-none placeholder-gray-500"
         />
         {query && (
           <button onClick={() => setQuery("")} className="text-gray-500 hover:text-white text-xs transition-colors">✕</button>

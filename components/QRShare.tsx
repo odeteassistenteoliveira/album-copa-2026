@@ -5,9 +5,10 @@ import { QRCodeSVG } from "qrcode.react";
 
 interface QRShareProps {
   slug: string;
+  menuItem?: boolean;
 }
 
-export default function QRShare({ slug }: QRShareProps) {
+export default function QRShare({ slug, menuItem = false }: QRShareProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [url, setUrl] = useState("");
@@ -24,13 +25,23 @@ export default function QRShare({ slug }: QRShareProps) {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
-      >
-        <span>🤝</span>
-        <span className="hidden sm:inline">Comparar</span>
-      </button>
+      {menuItem ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="w-full flex items-center gap-3 text-left"
+        >
+          <span className="text-lg">🤝</span>
+          <span className="font-bebas text-white text-base">Comparar ao Vivo</span>
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
+        >
+          <span>🤝</span>
+          <span className="hidden sm:inline">Comparar</span>
+        </button>
+      )}
 
       {open && (
         <div

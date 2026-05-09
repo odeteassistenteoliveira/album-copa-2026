@@ -148,81 +148,79 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
           {/* Stats centralizados */}
           <AlbumStats collected={collected} total={total} albumName={album.name} compact />
 
-          {/* Ações */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Repetidas — só aparece se tiver duplicatas */}
-            {totalDupes > 0 && (
-              <a href="/repetidas"
-                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bebas text-sm px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm"
-              >
-                <span>🔁</span>
-                <span className="hidden sm:inline">Repetidas</span>
-                <span className="bg-white/25 rounded-full px-1.5 text-xs font-bold">{totalDupes}</span>
-              </a>
-            )}
-
-            {/* Comparar ao vivo (QR) — sempre visível */}
-            <QRShare slug={album.slug} />
-
-            {/* Menu ⋯ — agrupa itens secundários */}
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen(o => !o)}
-                className="flex items-center justify-center w-9 h-9 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-bold text-lg"
-                title="Mais opções"
-              >
-                ⋯
-              </button>
-
-              {menuOpen && (
-                <>
-                  {/* Overlay para fechar */}
-                  <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-dark-card border border-dark-border rounded-2xl shadow-2xl z-50 overflow-hidden">
-                    <a href="/trocas" onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
-                      <span className="text-lg">🔄</span>
-                      <span className="font-bebas text-white text-base">Buscar Trocas</span>
-                    </a>
-                    <a href="/ranking" onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
-                      <span className="text-lg">🏆</span>
-                      <span className="font-bebas text-white text-base">Ranking Global</span>
-                    </a>
-                    <a href="/exportar" onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
-                      <span className="text-lg">📄</span>
-                      <span className="font-bebas text-white text-base">Exportar Faltantes</span>
-                    </a>
-                    <div className="border-b border-dark-border">
-                      <InstallPWA menuItem />
-                    </div>
-                    <a href="/perfil" onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
-                      <span className="text-lg">👤</span>
-                      <span className="font-bebas text-white text-base">Meu Perfil</span>
-                    </a>
-                    <ShareButton slug={album.slug} menuItem />
-                    <a href="/api/auth/signout"
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-red-400">
-                      <span className="text-lg">🚪</span>
-                      <span className="font-bebas text-base">Sair</span>
-                    </a>
-                  </div>
-                </>
+          {/* Menu ⋯ único — todos os itens agrupados */}
+          <div className="flex items-center shrink-0 relative">
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              className="flex items-center justify-center w-9 h-9 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-bold text-lg relative"
+              title="Menu"
+            >
+              ⋯
+              {/* Badge de repetidas sobre o menu */}
+              {totalDupes > 0 && (
+                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs font-bold font-nunito rounded-full w-4 h-4 flex items-center justify-center leading-none">
+                  {totalDupes > 9 ? "9+" : totalDupes}
+                </span>
               )}
-            </div>
+            </button>
+
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 top-full mt-2 w-56 bg-dark-card border border-dark-border rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  {/* Comparar ao vivo */}
+                  <div className="border-b border-dark-border px-4 py-3 hover:bg-white/5 transition-colors" onClick={() => setMenuOpen(false)}>
+                    <QRShare slug={album.slug} menuItem />
+                  </div>
+                  {/* Repetidas */}
+                  {totalDupes > 0 && (
+                    <a href="/repetidas" onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                      <span className="text-lg">🔁</span>
+                      <span className="font-bebas text-white text-base flex-1">Repetidas</span>
+                      <span className="bg-blue-600 text-white text-xs font-bold font-nunito px-1.5 py-0.5 rounded-full">{totalDupes}</span>
+                    </a>
+                  )}
+                  <a href="/trocas" onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                    <span className="text-lg">🔄</span>
+                    <span className="font-bebas text-white text-base">Buscar Trocas</span>
+                  </a>
+                  <a href="/ranking" onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                    <span className="text-lg">🏆</span>
+                    <span className="font-bebas text-white text-base">Ranking Global</span>
+                  </a>
+                  <a href="/exportar" onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                    <span className="text-lg">📄</span>
+                    <span className="font-bebas text-white text-base">Exportar Faltantes</span>
+                  </a>
+                  <div className="border-b border-dark-border">
+                    <InstallPWA menuItem />
+                  </div>
+                  <ShareButton slug={album.slug} menuItem />
+                  <a href="/perfil" onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-dark-border">
+                    <span className="text-lg">👤</span>
+                    <span className="font-bebas text-white text-base">Meu Perfil</span>
+                  </a>
+                  <a href="/api/auth/signout"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-red-400">
+                    <span className="text-lg">🚪</span>
+                    <span className="font-bebas text-base">Sair</span>
+                  </a>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {/* Stats gerais + busca */}
+        {/* Stats gerais */}
         <div className="mb-6">
           <AlbumStats collected={collected} total={total} albumName={album.name} />
-        </div>
-        <div className="mb-6">
-          <SearchBar onSelect={handleSearch} quantityMap={quantityMap} />
         </div>
 
         {/* Banner repetidas */}
@@ -247,6 +245,11 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
             </div>
           </a>
         )}
+
+        {/* Busca — acima do Grupo A */}
+        <div className="mb-5">
+          <SearchBar onSelect={handleSearch} quantityMap={quantityMap} />
+        </div>
 
         {/* Grupos de seleções */}
         {GROUPS.map((group) => (
