@@ -6,6 +6,8 @@ import AlbumStats from "@/components/AlbumStats";
 import GroupSection from "@/components/GroupSection";
 import ShareButton from "@/components/ShareButton";
 import InstallPWA from "@/components/InstallPWA";
+import SearchBar, { SearchResult } from "@/components/SearchBar";
+import QRShare from "@/components/QRShare";
 import { Album } from "@/lib/types";
 
 interface DashboardClientProps {
@@ -55,6 +57,17 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
     });
     if (!res.ok) setQuantityMap(prev => ({ ...prev, [key]: current }));
   }, [quantityMap, album.id]);
+
+  // ── busca ─────────────────────────────────────────────────────────────────
+  const handleSearch = useCallback((result: SearchResult) => {
+    setActiveTeam({
+      code: result.teamCode,
+      name: result.teamName,
+      flag: result.teamFlag,
+      groupName: result.groupName ?? "",
+      nums: result.nums,
+    });
+  }, []);
 
   // ── helpers de progresso ──────────────────────────────────────────────────
   const teamProgress = (code: string, nums?: number[]) => {
@@ -150,6 +163,9 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
                 </a>
               </>
             )}
+            <QRShare slug={album.slug} />
+            <a href="/ranking" className="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-yellow-400 text-lg transition-colors rounded-lg hover:bg-white/5" title="Ranking">🏆</a>
+            <a href="/exportar" className="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-green-400 text-lg transition-colors rounded-lg hover:bg-white/5" title="Exportar lista">📄</a>
             <InstallPWA />
             <ShareButton slug={album.slug} compact />
             <a href="/perfil" className="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-white text-sm transition-colors rounded-lg hover:bg-white/5" title="Perfil">👤</a>
@@ -159,9 +175,12 @@ export default function DashboardClient({ album, initialQuantityMap }: Dashboard
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {/* Stats gerais */}
+        {/* Stats gerais + busca */}
         <div className="mb-6">
           <AlbumStats collected={collected} total={total} albumName={album.name} />
+        </div>
+        <div className="mb-6">
+          <SearchBar onSelect={handleSearch} quantityMap={quantityMap} />
         </div>
 
         {/* Banner repetidas */}
