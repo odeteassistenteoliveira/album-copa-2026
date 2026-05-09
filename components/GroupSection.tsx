@@ -70,7 +70,7 @@ export default function GroupSection({
               </div>
             )}
 
-            <div className="grid grid-cols-10 sm:grid-cols-12 lg:grid-cols-14 xl:grid-cols-20 gap-1">
+            <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
               {numbers.map((num) => {
                 const key = `${team.code}_${num}`;
                 const qty = quantityMap[key] ?? 0;
