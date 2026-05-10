@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { PLAYER_NAMES } from "@/lib/data";
 
 interface StickerModalProps {
@@ -13,6 +14,13 @@ interface StickerModalProps {
   collected: boolean;
   onToggle?: () => Promise<void>;
   readOnly?: boolean;
+}
+
+function getStickerImage(teamCode: string, number: number): string | null {
+  if (teamCode === "CC") {
+    return `/stickers/cc/cc_${String(number).padStart(2, "0")}.jpg`;
+  }
+  return null;
 }
 
 export default function StickerModal({
@@ -28,7 +36,8 @@ export default function StickerModal({
 
   if (!isOpen) return null;
 
-  const playerName = PLAYER_NAMES[teamCode]?.[number] || null;
+  const playerName  = PLAYER_NAMES[teamCode]?.[number] || null;
+  const stickerImg  = getStickerImage(teamCode, number);
 
   const handleToggle = async () => {
     if (!onToggle) return;
@@ -47,24 +56,54 @@ export default function StickerModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Área visual da figurinha */}
-        <div className={`relative h-44 flex flex-col items-center justify-center
+        <div className={`relative h-56 flex flex-col items-center justify-center overflow-hidden
           ${collected
             ? "bg-gradient-to-b from-yellow-900/40 to-dark-card"
             : "bg-gradient-to-b from-gray-900 to-dark-card"}`}
         >
-          <span className="text-7xl mb-1">{teamFlag}</span>
-          <span className={`font-bebas text-lg ${collected ? "text-yellow-400" : "text-gray-600"}`}>
-            #{number}
-          </span>
+          {stickerImg ? (
+            /* Imagem real (CC) — ocupa toda a área */
+            <>
+              <Image
+                src={stickerImg}
+                alt={playerName ?? `CC-${number}`}
+                fill
+                sizes="320px"
+                className={`object-cover transition-all duration-300 ${
+                  collected ? "opacity-100" : "opacity-20 blur-sm grayscale"
+                }`}
+                priority
+              />
+              {/* gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+              {/* número no topo */}
+              <span className={`absolute top-10 left-0 right-0 text-center font-bebas text-lg drop-shadow ${
+                collected ? "text-yellow-300" : "text-gray-500"
+              }`}>
+                CC-{number}
+              </span>
+              {!collected && (
+                <span className="absolute text-4xl opacity-60">🥤</span>
+              )}
+            </>
+          ) : (
+            /* Figurinha comum — flag + número */
+            <>
+              <span className="text-7xl mb-1">{teamFlag}</span>
+              <span className={`font-bebas text-lg ${collected ? "text-yellow-400" : "text-gray-600"}`}>
+                #{number}
+              </span>
+            </>
+          )}
 
           {collected && (
-            <div className="absolute top-3 right-3 bg-yellow-400 text-black text-xs font-bebas px-2 py-0.5 rounded-full">
+            <div className="absolute top-3 right-3 bg-yellow-400 text-black text-xs font-bebas px-2 py-0.5 rounded-full z-10">
               ✓ COLETADA
             </div>
           )}
           <button
             onClick={onClose}
-            className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors text-sm"
+            className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors text-sm z-10"
           >✕</button>
         </div>
 
