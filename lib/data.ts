@@ -132,7 +132,7 @@ export const SPECIAL: SpecialSection[] = [
     code: "FWC",
     name: "FIFA World Cup History",
     flag: "🏆",
-    nums: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    nums: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
   },
   {
     code: "CC",
@@ -196,7 +196,7 @@ export const STAR_PLAYERS: Record<string, string> = {
   CC: "Coca-Cola",
 };
 
-// Total de figurinhas: 48 seleções × 20 + 11 FWC + 14 CC = 985
+// Total de figurinhas: 48 seleções × 20 + 20 FWC + 14 CC = 994
 export const STICKERS_PER_TEAM = 20;
 
 export function getTotalStickers(): number {
@@ -484,6 +484,7 @@ export const PLAYER_NAMES: Record<string, Record<number, string>> = {
     10: "Adalberto Carrasquilla", 11: "Anibal Godoy", 12: "Abdiel Arroyo", 13: "Edgar Bárcenas", 14: "Cristian Martínez",
     15: "Rolando Blackburn", 16: "Gabriel Torres", 17: "Cecilio Waterman", 18: "Ismael Díaz", 19: "César Yanis", 20: "Seleção" },
   FWC: {
+    0: "Troféu FIFA World Cup",
     1: "Copa do Mundo 1930", 2: "Copa do Mundo 1950", 3: "Copa do Mundo 1958",
     4: "Copa do Mundo 1966", 5: "Copa do Mundo 1970", 6: "Copa do Mundo 1982",
     7: "Copa do Mundo 1994", 8: "Copa do Mundo 2002",
