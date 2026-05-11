@@ -41,23 +41,13 @@ export default function StickerModal({
     if (!isOpen) return;
     setImageUrl(null);
     setLoading(true);
-
-    // Try local Panini sticker image first
-    const stickerPath = getStickerImagePath(teamCode, number);
-    const el = document.createElement("img");
-    el.onload = () => {
-      setImageUrl(stickerPath);
-      setLoading(false);
-    };
-    el.onerror = () => {
-      // Fall back to Wikipedia star player image
-      fetch(`/api/image/${teamCode}`)
-        .then((r) => r.json())
-        .then((d) => setImageUrl(d.image_url || null))
-        .catch(() => setImageUrl(null))
-        .finally(() => setLoading(false));
-    };
-    el.src = stickerPath;
+    // Imagens Panini desativadas temporariamente (mapeamento em revisão)
+    // Usando apenas imagem da Wikipedia do jogador estrela
+    fetch(`/api/image/${teamCode}`)
+      .then((r) => r.json())
+      .then((d) => setImageUrl(d.image_url || null))
+      .catch(() => setImageUrl(null))
+      .finally(() => setLoading(false));
   }, [isOpen, teamCode, number]);
 
   useEffect(() => {

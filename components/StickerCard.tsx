@@ -32,8 +32,8 @@ export default function StickerCard({
   const collected = quantity >= 1;
   const hasDupe   = quantity >= 2;
   const stickerImg = getStickerImage(teamCode, number);
-  const [imgError, setImgError] = useState(false);
-  const showImg = !imgError;
+  // Imagens desativadas temporariamente (mapeamento em revisão)
+  const showImg = false;
 
   const lastTap      = useRef<number>(0);
   const singleTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
