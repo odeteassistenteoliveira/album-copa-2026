@@ -44,12 +44,12 @@ export default function StickerModal({
 
     // Try local Panini sticker image first
     const stickerPath = getStickerImagePath(teamCode, number);
-    const img = new window.Image();
-    img.onload = () => {
+    const el = document.createElement("img");
+    el.onload = () => {
       setImageUrl(stickerPath);
       setLoading(false);
     };
-    img.onerror = () => {
+    el.onerror = () => {
       // Fall back to Wikipedia star player image
       fetch(`/api/image/${teamCode}`)
         .then((r) => r.json())
@@ -57,7 +57,7 @@ export default function StickerModal({
         .catch(() => setImageUrl(null))
         .finally(() => setLoading(false));
     };
-    img.src = stickerPath;
+    el.src = stickerPath;
   }, [isOpen, teamCode, number]);
 
   useEffect(() => {
@@ -168,4 +168,4 @@ export default function StickerModal({
                     ? "bg-red-900/40 border-2 border-red-700 text-red-400 hover:bg-red-900/60"
                     : "bg-yellow-400 text-black hover:bg-yellow-300 shadow-gold"
                 }
-                ${toggling ? "opacity-50 cursor-not-
+                ${toggling ? "opacity-50 curs
