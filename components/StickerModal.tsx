@@ -168,4 +168,26 @@ export default function StickerModal({
                     ? "bg-red-900/40 border-2 border-red-700 text-red-400 hover:bg-red-900/60"
                     : "bg-yellow-400 text-black hover:bg-yellow-300 shadow-gold"
                 }
-                ${toggling ? "opacity-50 curs
+                ${toggling ? "opacity-50 cursor-not-allowed" : "active:scale-95"}
+              `}
+            >
+              {toggling ? (
+                "..."
+              ) : collected ? (
+                "❌ Remover Figurinha"
+              ) : (
+                "✅ Tenho esta figurinha!"
+              )}
+            </button>
+          )}
+
+          {readOnly && (
+            <p className="text-center text-gray-500 text-sm font-nunito">
+              {collected ? "✓ Esta figurinha foi coletada" : "Figurinha ainda não coletada"}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
