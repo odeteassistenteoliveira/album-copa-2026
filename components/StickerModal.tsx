@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { PLAYER_NAMES } from "@/lib/data";
+import { STAR_PLAYERS } from "@/lib/data";
 
 interface StickerModalProps {
   isOpen: boolean;
@@ -16,33 +16,70 @@ interface StickerModalProps {
   readOnly?: boolean;
 }
 
-function getStickerImage(teamCode: string, number: number): string | null {
-  if (teamCode === "CC") {
-    return `/stickers/cc/cc_${String(number).padStart(2, "0")}.jpg`;
-  }
-  return null;
+function getStickerImagePath(teamCode: string, number: number): string {
+  const team = teamCode.toLowerCase();
+  const num = String(number).padStart(2, "0");
+  return `/stickers/${team}/${team}_${num}.jpg`;
 }
 
 export default function StickerModal({
-  isOpen, onClose, teamCode, teamName, teamFlag, number, collected, onToggle, readOnly = false,
+  isOpen,
+  onClose,
+  teamCode,
+  teamName,
+  teamFlag,
+  number,
+  collected,
+  onToggle,
+  readOnly = false,
 }: StickerModalProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [toggling, setToggling] = useState(false);
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    if (!isOpen) return;
+    setImageUrl(null);
+    setLoading(true);
+
+    // Try local Panini sticker image first
+    const stickerPath = getStickerImagePath(teamCode, number);
+    const img = new window.Image();
+    img.onload = () => {
+      setImageUrl(stickerPath);
+      setLoading(false);
+    };
+    img.onerror = () => {
+      // Fall back to Wikipedia star player image
+      fetch(`/api/image/${teamCode}`)
+        .then((r) => r.json())
+        .then((d) => setImageUrl(d.image_url || null))
+        .catch(() => setImageUrl(null))
+        .finally(() => setLoading(false));
+    };
+    img.src = stickerPath;
+  }, [isOpen, teamCode, number]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     if (isOpen) document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  const playerName  = PLAYER_NAMES[teamCode]?.[number] || null;
-  const stickerImg  = getStickerImage(teamCode, number);
+  const playerName = STAR_PLAYERS[teamCode];
 
   const handleToggle = async () => {
     if (!onToggle) return;
     setToggling(true);
-    try { await onToggle(); } finally { setToggling(false); }
+    try {
+      await onToggle();
+    } finally {
+      setToggling(false);
+    }
   };
 
   return (
@@ -51,94 +88,84 @@ export default function StickerModal({
       onClick={onClose}
     >
       <div
-        className={`relative w-full max-w-xs rounded-2xl overflow-hidden border-2 shadow-2xl bg-dark-card
-          ${collected ? "border-yellow-400 shadow-gold" : "border-gray-700"}`}
+        className={`
+          relative w-full max-w-sm rounded-2xl overflow-hidden border-2 shadow-2xl
+          ${collected ? "border-yellow-400 shadow-gold" : "border-gray-700"}
+          bg-dark-card
+        `}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Área visual da figurinha */}
-        <div className={`relative h-56 flex flex-col items-center justify-center overflow-hidden
-          ${collected
-            ? "bg-gradient-to-b from-yellow-900/40 to-dark-card"
-            : "bg-gradient-to-b from-gray-900 to-dark-card"}`}
-        >
-          {stickerImg ? (
-            /* Imagem real (CC) — ocupa toda a área */
-            <>
-              <Image
-                src={stickerImg}
-                alt={playerName ?? `CC-${number}`}
-                fill
-                sizes="320px"
-                className={`object-cover transition-all duration-300 ${
-                  collected ? "opacity-100" : "opacity-20 blur-sm grayscale"
-                }`}
-                priority
-              />
-              {/* gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
-              {/* número no topo */}
-              <span className={`absolute top-10 left-0 right-0 text-center font-bebas text-lg drop-shadow ${
-                collected ? "text-yellow-300" : "text-gray-500"
-              }`}>
-                CC-{number}
-              </span>
-              {!collected && (
-                <span className="absolute text-4xl opacity-60">🥤</span>
-              )}
-            </>
+        {/* Imagem do jogador */}
+        <div className="relative h-64 bg-gradient-to-b from-gray-900 to-dark-card">
+          {loading ? (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full border-4 border-yellow-400 border-t-transparent animate-spin" />
+            </div>
+          ) : imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={playerName || teamName}
+              fill
+              className="object-cover object-top"
+              unoptimized
+            />
           ) : (
-            /* Figurinha comum — flag + número */
-            <>
-              <span className="text-7xl mb-1">{teamFlag}</span>
-              <span className={`font-bebas text-lg ${collected ? "text-yellow-400" : "text-gray-600"}`}>
-                #{number}
-              </span>
-            </>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-8xl">{teamFlag}</span>
+            </div>
           )}
 
+          {/* Gradiente inferior */}
+          <div className="absolute inset-0 bg-gradient-to-t from-dark-card via-transparent to-transparent" />
+
+          {/* Badge coletada */}
           {collected && (
-            <div className="absolute top-3 right-3 bg-yellow-400 text-black text-xs font-bebas px-2 py-0.5 rounded-full z-10">
+            <div className="absolute top-3 right-3 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full">
               ✓ COLETADA
             </div>
           )}
+
+          {/* Botão fechar */}
           <button
             onClick={onClose}
-            className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors text-sm z-10"
-          >✕</button>
+            className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+          >
+            ✕
+          </button>
         </div>
 
-        {/* Info da figurinha */}
+        {/* Info */}
         <div className="p-5">
-          <div className="mb-4">
-            <h3 className="font-bebas text-2xl text-white leading-tight">{teamName}</h3>
-            {playerName ? (
-              <p className="text-yellow-400 font-bebas text-xl leading-tight mt-0.5">{playerName}</p>
-            ) : (
-              <p className="text-gray-600 text-sm font-nunito mt-0.5">Figurinha #{number}</p>
-            )}
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-3xl">{teamFlag}</span>
+            <div>
+              <h3 className="font-bebas text-2xl text-white leading-none">
+                {teamName}
+              </h3>
+              {playerName && (
+                <p className="text-yellow-400 text-sm font-nunito">
+                  {playerName}
+                </p>
+              )}
+            </div>
+            <div className="ml-auto text-right">
+              <div className="font-bebas text-3xl text-yellow-400 leading-none">
+                #{number}
+              </div>
+            </div>
           </div>
 
-          <div className="h-px bg-dark-border mb-4" />
+          <div className="h-px bg-dark-border my-4" />
 
-          {!readOnly ? (
+          {!readOnly && (
             <button
               onClick={handleToggle}
               disabled={toggling}
-              className={`w-full py-3 rounded-xl font-bebas text-xl tracking-wide transition-all duration-200 active:scale-95
-                ${collected
-                  ? "bg-red-900/40 border-2 border-red-700 text-red-400 hover:bg-red-900/60"
-                  : "bg-yellow-400 text-black hover:bg-yellow-300 shadow-gold"
-                } ${toggling ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {toggling ? "..." : collected ? "❌ Remover" : "✅ Tenho esta figurinha!"}
-            </button>
-          ) : (
-            <p className="text-center text-gray-500 text-sm font-nunito">
-              {collected ? "✓ Coletada" : "Ainda não coletada"}
-            </p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+              className={`
+                w-full py-3 rounded-xl font-bebas text-xl tracking-wide transition-all duration-200
+                ${
+                  collected
+                    ? "bg-red-900/40 border-2 border-red-700 text-red-400 hover:bg-red-900/60"
+                    : "bg-yellow-400 text-black hover:bg-yellow-300 shadow-gold"
+                }
+                ${toggling ? "opacity-50 cursor-not-
