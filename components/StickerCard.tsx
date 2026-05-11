@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 
 interface StickerCardProps {
@@ -19,12 +19,11 @@ const DOUBLE_TAP_MS    = 300;
 const LONG_PRESS_MS    = 500;
 const SCROLL_THRESHOLD = 15;
 
-// Figurinhas que têm imagem real disponível
-function getStickerImage(teamCode: string, number: number): string | null {
-  if (teamCode === "CC") {
-    return `/stickers/cc/cc_${String(number).padStart(2, "0")}.jpg`;
-  }
-  return null;
+// Retorna caminho local da figurinha Panini para qualquer seleção
+function getStickerImage(teamCode: string, number: number): string {
+  const team = teamCode.toLowerCase();
+  const num = String(number).padStart(2, "0");
+  return `/stickers/${team}/${team}_${num}.jpg`;
 }
 
 export default function StickerCard({
@@ -33,6 +32,8 @@ export default function StickerCard({
   const collected = quantity >= 1;
   const hasDupe   = quantity >= 2;
   const stickerImg = getStickerImage(teamCode, number);
+  const [imgError, setImgError] = useState(false);
+  const showImg = !imgError;
 
   const lastTap      = useRef<number>(0);
   const singleTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -125,31 +126,30 @@ export default function StickerCard({
         className={`
           relative w-full aspect-[3/4] rounded-xl overflow-hidden border-2 transition-all duration-100 select-none
           ${collected
-            ? stickerImg
-              ? "border-red-500 shadow-lg shadow-red-900/40 active:scale-90"
-              : "border-yellow-400 bg-gradient-to-b from-yellow-800/40 to-yellow-900/30 active:scale-90 shadow-md shadow-yellow-900/30"
+            ? "border-yellow-400 bg-gradient-to-b from-yellow-800/40 to-yellow-900/30 active:scale-90 shadow-md shadow-yellow-900/30"
             : "border-gray-700/60 bg-dark-card active:scale-90 active:border-yellow-700/50"
           }
           ${!readOnly ? "cursor-pointer" : collected ? "cursor-default" : "cursor-default opacity-40"}
         `}
       >
-        {/* ── FIGURINHA COM IMAGEM REAL (CC coletada) ── */}
-        {collected && stickerImg ? (
+        {/* ── FIGURINHA COM IMAGEM REAL ── */}
+        {collected && showImg ? (
           <>
             <Image
               src={stickerImg}
-              alt={`CC-${number}`}
+              alt={`${teamCode}-${number}`}
               fill
               sizes="120px"
               className="object-cover"
               priority={false}
+              onError={() => setImgError(true)}
             />
             {/* overlay sutil no topo para badges */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/20" />
             {/* Número no canto inferior */}
             <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center pb-1">
               <span className="font-bebas text-white text-xs drop-shadow-lg bg-black/40 px-1.5 rounded">
-                CC-{number}
+                {number}
               </span>
             </div>
             {/* dot coletado */}
@@ -178,28 +178,10 @@ export default function StickerCard({
         ) : (
           /* ── FIGURINHA NÃO COLETADA ── */
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-1">
-            {stickerImg ? (
-              /* CC não coletada: mostrar imagem embaçada/escura como teaser */
-              <>
-                <Image
-                  src={stickerImg}
-                  alt={`CC-${number}`}
-                  fill
-                  sizes="120px"
-                  className="object-cover opacity-20 blur-[2px] grayscale"
-                  priority={false}
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-                  <span className="text-2xl leading-none opacity-60">🥤</span>
-                  <span className="text-gray-500 font-bebas text-sm leading-none">{number}</span>
-                </div>
-              </>
-            ) : (
               <>
                 <span className="text-2xl sm:text-xl leading-none opacity-15">{teamFlag}</span>
                 <span className="text-gray-600 font-bebas text-sm sm:text-xs leading-none">{number}</span>
               </>
-            )}
           </div>
         )}
       </button>
