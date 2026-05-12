@@ -244,11 +244,11 @@ export const PLAYER_NAMES: Record<string, Record<number, string>> = {
     17: "Matheus Cunha", 18: "Gabriel Martinelli", 19: "Raphinha", 20: "Estêvão",
   },
   ARG: {
-    1: "Escudo", 2: "Emiliano Martínez", 3: "Geronimo Rulli", 4: "Franco Armani",
-    5: "Nahuel Molina", 6: "Cristian Romero", 7: "Lisandro Martínez", 8: "Nicolás Otamendi", 9: "Nicolás Tagliafico",
-    10: "Rodrigo De Paul", 11: "Enzo Fernández", 12: "Alexis Mac Allister", 13: "Leandro Paredes", 14: "Giovani Lo Celso",
-    15: "Lionel Messi", 16: "Lautaro Martínez", 17: "Julián Álvarez", 18: "Ángel Di María",
-    19: "Paulo Dybala", 20: "Seleção",
+    1: "Escudo", 2: "Emiliano Martínez", 3: "Nahuel Molina", 4: "Cristian Romero",
+    5: "Nicolás Otamendi", 6: "Nicolás Tagliafico", 7: "Leonardo Balerdi", 8: "Enzo Fernández",
+    9: "Alexis Mac Allister", 10: "Rodrigo De Paul", 11: "Exequiel Palacios", 12: "Leandro Paredes",
+    13: "Foto do Time", 14: "Nico Paz", 15: "Franco Mastantuono", 16: "Nico González",
+    17: "Lionel Messi", 18: "Lautaro Martínez", 19: "Julián Álvarez", 20: "Giuliano Simeone",
   },
   FRA: {
     1: "Escudo", 2: "Mike Maignan", 3: "Alphonse Areola", 4: "Guillaume Restes",
@@ -272,11 +272,11 @@ export const PLAYER_NAMES: Record<string, Record<number, string>> = {
     19: "Diogo Jota", 20: "Seleção",
   },
   ESP: {
-    1: "Escudo", 2: "Unai Simón", 3: "David Raya", 4: "Álex Remiro",
-    5: "Dani Carvajal", 6: "Aymeric Laporte", 7: "Robin Le Normand", 8: "Pau Cubarsí", 9: "Alejandro Grimaldo",
-    10: "Rodri", 11: "Pedri", 12: "Fabián Ruiz", 13: "Marcos Llorente", 14: "Dani Olmo",
-    15: "Álvaro Morata", 16: "Lamine Yamal", 17: "Nico Williams", 18: "Mikel Oyarzabal",
-    19: "Ferran Torres", 20: "Seleção",
+    1: "Escudo", 2: "Unai Simón", 3: "Robin Le Normand", 4: "Aymeric Laporte",
+    5: "Dean Huijsen", 6: "Pedro Porro", 7: "Dani Carvajal", 8: "Marc Cucurella",
+    9: "Martín Zubimendi", 10: "Rodri", 11: "Pedri", 12: "Fabián Ruiz",
+    13: "Foto do Time", 14: "Mikel Merino", 15: "Lamine Yamal", 16: "Dani Olmo",
+    17: "Nico Williams", 18: "Ferran Torres", 19: "Álvaro Morata", 20: "Mikel Oyarzabal",
   },
   GER: {
     1: "Escudo", 2: "Manuel Neuer", 3: "Marc-André ter Stegen", 4: "Oliver Baumann",
