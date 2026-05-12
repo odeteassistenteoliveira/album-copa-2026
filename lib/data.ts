@@ -314,11 +314,11 @@ export const PLAYER_NAMES: Record<string, Record<number, string>> = {
     19: "Folarin Balogun", 20: "Seleção",
   },
   MEX: {
-    1: "Escudo", 2: "Guillermo Ochoa", 3: "Alfredo Talavera", 4: "Rodolfo Cota",
-    5: "Jorge Sánchez", 6: "Héctor Moreno", 7: "Johan Vásquez", 8: "César Montes", 9: "Gerardo Arteaga",
-    10: "Édson Álvarez", 11: "Héctor Herrera", 12: "Orbelin Pineda", 13: "Andrés Guardado", 14: "Carlos Rodríguez",
-    15: "Hirving Lozano", 16: "Alexis Vega", 17: "Henry Martín", 18: "Raúl Jiménez",
-    19: "Roberto Alvarado", 20: "Seleção",
+    1: "Escudo", 2: "Luis Malagón", 3: "Johan Vasquez", 4: "Jorge Sánchez",
+    5: "Cesar Montes", 6: "Jesus Gallardo", 7: "Israel Reyes", 8: "Diego Lainez",
+    9: "Carlos Rodriguez", 10: "Edson Alvarez", 11: "Orbelin Pineda", 12: "Marcel Ruiz",
+    13: "Foto do Time", 14: "Érick Sánchez", 15: "Hirving Lozano", 16: "Santiago Giménez",
+    17: "Raúl Jiménez", 18: "Alexis Vega", 19: "Roberto Alvarado", 20: "Cesar Huerta",
   },
   CAN: {
     1: "Escudo", 2: "Milan Borjan", 3: "Dayne St. Clair", 4: "James Pantemis",
