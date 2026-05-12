@@ -293,11 +293,11 @@ export const PLAYER_NAMES: Record<string, Record<number, string>> = {
     19: "Wout Weghorst", 20: "Seleção",
   },
   URU: {
-    1: "Escudo", 2: "Sergio Rochet", 3: "Sebastián Sosa", 4: "Guillermo de Amores",
-    5: "Nahitan Nández", 6: "José María Giménez", 7: "Diego Godín", 8: "Ronald Araújo", 9: "Martín Cáceres",
-    10: "Federico Valverde", 11: "Rodrigo Bentancur", 12: "Lucas Torreira", 13: "Giorgian de Arrascaeta", 14: "Matías Vecino",
-    15: "Luis Suárez", 16: "Darwin Núñez", 17: "Edinson Cavani", 18: "Facundo Torres",
-    19: "Maxi Gómez", 20: "Seleção",
+    1: "Escudo", 2: "Sergio Rochet", 3: "Santiago Mele", 4: "Ronald Araújo",
+    5: "José María Giménez", 6: "Sebastián Cáceres", 7: "Mathías Olivera", 8: "Guillermo Varela",
+    9: "Nahitan Nández", 10: "Federico Valverde", 11: "Giorgian De Arrascaeta", 12: "Rodrigo Bentancur",
+    13: "Foto do Time", 14: "Manuel Ugarte", 15: "Nicolás de la Cruz", 16: "Maxi Araújo",
+    17: "Darwin Núñez", 18: "Federico Viñas", 19: "Rodrigo Aguirre", 20: "Facundo Pellistri",
   },
   COL: {
     1: "Escudo", 2: "David Ospina", 3: "Camilo Vargas", 4: "Álvaro Montero",
