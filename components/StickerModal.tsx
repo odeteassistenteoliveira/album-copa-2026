@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { STAR_PLAYERS } from "@/lib/data";
+import { PLAYER_NAMES, STAR_PLAYERS } from "@/lib/data";
 
 interface StickerModalProps {
   isOpen: boolean;
@@ -40,14 +40,11 @@ export default function StickerModal({
   useEffect(() => {
     if (!isOpen) return;
     setImageUrl(null);
-    setLoading(true);
-    // Imagens Panini desativadas temporariamente (mapeamento em revisão)
-    // Usando apenas imagem da Wikipedia do jogador estrela
-    fetch(`/api/image/${teamCode}`)
-      .then((r) => r.json())
-      .then((d) => setImageUrl(d.image_url || null))
-      .catch(() => setImageUrl(null))
-      .finally(() => setLoading(false));
+    setLoading(false);
+    // Usar imagem Panini local diretamente
+    const team = teamCode.toLowerCase();
+    const num = String(number).padStart(2, "0");
+    setImageUrl(`/stickers/${team}/${team}_${num}.jpg`);
   }, [isOpen, teamCode, number]);
 
   useEffect(() => {
@@ -60,7 +57,7 @@ export default function StickerModal({
 
   if (!isOpen) return null;
 
-  const playerName = STAR_PLAYERS[teamCode];
+  const playerName = PLAYER_NAMES[teamCode]?.[number] ?? STAR_PLAYERS[teamCode] ?? "";
 
   const handleToggle = async () => {
     if (!onToggle) return;

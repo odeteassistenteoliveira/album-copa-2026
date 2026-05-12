@@ -237,11 +237,11 @@ export function generateSlug(name: string): string {
 // Mapeamento de jogadores por figurinha (team_code → número → nome)
 export const PLAYER_NAMES: Record<string, Record<number, string>> = {
   BRA: {
-    1: "Escudo", 2: "Alisson", 3: "Weverton", 4: "Éderson",
-    5: "Danilo", 6: "Éder Militão", 7: "Marquinhos", 8: "Gabriel Magalhães", 9: "Wendell",
-    10: "Casemiro", 11: "Lucas Paquetá", 12: "Bruno Guimarães", 13: "Gerson", 14: "Rodrygo",
-    15: "Vinícius Júnior", 16: "Raphinha", 17: "Gabriel Martinelli", 18: "Endrick",
-    19: "Gabriel Barbosa", 20: "Seleção",
+    1: "Escudo", 2: "Alisson", 3: "Bento", 4: "Marquinhos",
+    5: "Éder Militão", 6: "Gabriel Magalhães", 7: "Danilo", 8: "Wesley",
+    9: "Lucas Paquetá", 10: "Casemiro", 11: "Bruno Guimarães", 12: "Luiz Henrique",
+    13: "Foto do Time", 14: "Vinícius Júnior", 15: "Rodrygo", 16: "João Pedro",
+    17: "Matheus Cunha", 18: "Gabriel Martinelli", 19: "Raphinha", 20: "Estêvão",
   },
   ARG: {
     1: "Escudo", 2: "Emiliano Martínez", 3: "Geronimo Rulli", 4: "Franco Armani",
