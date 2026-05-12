@@ -133,15 +133,13 @@ export default function StickerCard({
         `}
       >
         {/* ── FIGURINHA COM IMAGEM REAL ── */}
-        {collected && showImg ? (
+        {collected && showImg && !imgError ? (
           <>
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={stickerImg}
               alt={`${teamCode}-${number}`}
-              fill
-              sizes="120px"
-              className="object-cover"
-              priority={false}
+              className="absolute inset-0 w-full h-full object-cover"
               onError={() => setImgError(true)}
             />
             {/* overlay sutil no topo para badges */}
