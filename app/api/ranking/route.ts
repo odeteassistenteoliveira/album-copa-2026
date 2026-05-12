@@ -36,5 +36,5 @@ export async function GET() {
   const ranking = counts.map((a, i) => ({ ...a, rank: i + 1 }));
   const myRank = user ? ranking.find(r => r.user_id === user.id) ?? null : null;
 
-  return NextResponse.json({ ranking: ranking.slice(0, 10), myRank, total });
+  return NextResponse.json({ ranking, myRank, total });
 }
