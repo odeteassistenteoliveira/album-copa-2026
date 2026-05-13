@@ -342,11 +342,11 @@ export const PLAYER_NAMES: Record<string, Record<number, string>> = {
     19: "Zakaria Aboukhlal", 20: "Seleção",
   },
   KOR: {
-    1: "Escudo", 2: "Kim Seung-gyu", 3: "Jo Hyeon-woo", 4: "Song Bum-keun",
-    5: "Kim Moon-hwan", 6: "Kim Min-jae", 7: "Jung Seung-hyun", 8: "Lee Yong", 9: "Hong Chul",
-    10: "Jung Woo-young", 11: "Son Heung-min", 12: "Lee Kang-in", 13: "Kwon Chang-hoon", 14: "Na Sang-ho",
-    15: "Hwang Hee-chan", 16: "Cho Gue-sung", 17: "Hwang Ui-jo", 18: "Oh Se-hun",
-    19: "Bae Jun-ho", 20: "Seleção",
+    1: "Escudo", 2: "Hyeonwoo Jo", 3: "Seunggyu Kim", 4: "Min-jae Kim",
+    5: "Yumin Cho", 6: "Youngwoo Seol", 7: "Hanbeom Lee", 8: "Tae-seok Lee",
+    9: "Myungjae Lee", 10: "Jaesung Lee", 11: "In-beom Hwang", 12: "Kang-in Lee",
+    13: "Foto do Time", 14: "Seungho Paik", 15: "Jens Castrop", 16: "Dongg-yeong Lee",
+    17: "Gue-sung Cho", 18: "Heung-min Son", 19: "Hee-chan Hwang", 20: "Hyeongyu Oh",
   },
   EGY: {
     1: "Escudo", 2: "Mohamed El Shenawy", 3: "Ahmed El Shenawy", 4: "Gabaski",
