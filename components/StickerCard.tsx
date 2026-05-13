@@ -33,7 +33,7 @@ export default function StickerCard({
   const hasDupe   = quantity >= 2;
   const stickerImg = getStickerImage(teamCode, number);
   const [imgError, setImgError] = useState(false);
-  const showImg = ['bra', 'mex', 'esp', 'arg', 'uru', 'rsa', 'kor', 'cze'].includes(teamCode.toLowerCase());
+  const showImg = ['bra', 'mex', 'esp', 'arg', 'uru', 'rsa', 'kor', 'cze', 'cc'].includes(teamCode.toLowerCase());
 
   const lastTap      = useRef<number>(0);
   const singleTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
