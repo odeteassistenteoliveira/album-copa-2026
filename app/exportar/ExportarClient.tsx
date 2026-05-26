@@ -33,12 +33,13 @@ export default function ExportarClient({ albumName, quantityMap }: Props) {
   const handleWhatsApp = () => {
     if (totalMissing === 0) return;
 
-    let msg = `\u{1F3C6} *Copa do Mundo 2026 — Figurinhas FALTANTES*\n`;
-    msg += `\u{1F464} ${albumName}\n`;
-    msg += `\u{1F4CA} Total: ${totalMissing} figurinha${totalMissing > 1 ? "s" : ""} faltando\n\n`;
+    let msg = `🏆 *Copa do Mundo 2026 — Figurinhas FALTANTES*\n`;
+    msg += `👤 ${albumName}\n`;
+    msg += `📊 Total: ${totalMissing} figurinha${totalMissing > 1 ? "s" : ""} faltando\n\n`;
 
     for (const team of missingByTeam) {
-      msg += `${team.flag} *${team.name}*: ${team.missing.join(", ")}\n`;
+      const codes = team.missing.map(n => `${team.code}${n}`).join(", ");
+      msg += `${team.flag} *${team.name}*: ${codes}\n`;
     }
 
     msg += `\n_album-copa-2026.vercel.app_`;
@@ -106,9 +107,9 @@ export default function ExportarClient({ albumName, quantityMap }: Props) {
                       <span
                         key={n}
                         title={PLAYER_NAMES[team.code]?.[n]}
-                        className="bg-gray-800 border border-gray-700 text-gray-300 font-bebas text-xs px-1.5 py-0.5 rounded"
+                        className="bg-gray-800 border border-gray-700 text-yellow-400 font-bebas text-xs px-1.5 py-0.5 rounded"
                       >
-                        {n}
+                        {team.code}{n}
                       </span>
                     ))}
                   </div>

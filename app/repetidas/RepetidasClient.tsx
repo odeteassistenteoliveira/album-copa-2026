@@ -25,13 +25,8 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
 
   const duplicates = useMemo(() => {
     const result: Array<{
-      teamCode: string;
-      teamName: string;
-      teamFlag: string;
-      number: number;
-      qty: number;
-      dupes: number;
-      playerName: string;
+      teamCode: string; teamName: string; teamFlag: string;
+      number: number; qty: number; dupes: number; playerName: string;
     }> = [];
 
     for (const [key, qty] of Object.entries(quantityMap)) {
@@ -67,16 +62,13 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
     const current = quantityMap[key] ?? 0;
     const newQty = Math.max(0, current + delta);
     const saveKey = `${key}_${delta}`;
-
     setQuantityMap(prev => ({ ...prev, [key]: newQty }));
     setSaving(saveKey);
-
     await fetch("/api/sticker", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ album_id: albumId, team_code: teamCode, number, quantity: newQty, collected: newQty >= 1 }),
     });
-
     setSaving(null);
   }, [quantityMap, albumId]);
 
@@ -89,12 +81,13 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
     for (const [teamCode, stickers] of Array.from(grouped.entries())) {
       const team = ALL_TEAMS.find(t => t.code === teamCode)!;
       const teamTotal = stickers.reduce((acc, s) => acc + s.dupes, 0);
-      const items = stickers.map(s => s.dupes > 1 ? `${s.number}(${s.dupes}x)` : `${s.number}`).join(", ");
+      const items = stickers.map(s =>
+        s.dupes > 1 ? `${teamCode}${s.number}(${s.dupes}x)` : `${teamCode}${s.number}`
+      ).join(", ");
       msg += `${team.flag} *${team.name}*: ${items} — ${teamTotal} extra${teamTotal > 1 ? "s" : ""}\n`;
     }
 
     msg += `\n_album-copa-2026.vercel.app_`;
-
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
@@ -125,8 +118,6 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
-
-        {/* Resumo em cards */}
         {totalDupes > 0 && (
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div className="bg-dark-card border border-dark-border rounded-xl px-4 py-3 text-center">
@@ -140,7 +131,6 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
           </div>
         )}
 
-        {/* CTA trocas */}
         {totalDupes > 0 && (
           <a
             href="/trocas"
@@ -156,7 +146,6 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
           </a>
         )}
 
-        {/* Empty state */}
         {duplicates.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <span className="text-6xl mb-4">🏆</span>
@@ -170,7 +159,6 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
           </div>
         )}
 
-        {/* Lista por time */}
         {Array.from(grouped.entries()).map(([teamCode, stickers]) => {
           const team = ALL_TEAMS.find(t => t.code === teamCode)!;
           const teamDupes = stickers.reduce((acc, s) => acc + s.dupes, 0);
@@ -192,9 +180,8 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
 
                   return (
                     <div key={key} className="flex items-center gap-3 bg-dark-card border border-dark-border rounded-xl px-4 py-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-600/20 border border-blue-600/40 flex flex-col items-center justify-center shrink-0">
-                        <span className="font-bebas text-blue-300 text-xs leading-none">{s.teamCode}</span>
-                        <span className="font-bebas text-white text-base leading-none">{s.number}</span>
+                      <div className="w-12 h-10 rounded-lg bg-blue-600/20 border border-blue-600/40 flex items-center justify-center shrink-0">
+                        <span className="font-bebas text-yellow-400 text-sm leading-none">{s.teamCode}{s.number}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-white text-sm font-nunito font-semibold truncate">{s.playerName}</p>
@@ -207,9 +194,7 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
                           onClick={() => handleChange(s.teamCode, s.number, -1)}
                           disabled={!!isSaving}
                           className="w-8 h-8 rounded-lg bg-red-900/30 border border-red-800/40 text-red-400 hover:bg-red-800/50 active:scale-90 transition-all text-lg font-bold flex items-center justify-center disabled:opacity-40"
-                        >
-                          −
-                        </button>
+                        >−</button>
                         <span className={`w-7 text-center font-bebas text-lg transition-all ${isSaving ? "text-gray-500" : "text-white"}`}>
                           {quantityMap[key] ?? s.qty}
                         </span>
@@ -217,9 +202,7 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
                           onClick={() => handleChange(s.teamCode, s.number, +1)}
                           disabled={!!isSaving}
                           className="w-8 h-8 rounded-lg bg-green-900/30 border border-green-800/40 text-green-400 hover:bg-green-800/50 active:scale-90 transition-all text-lg font-bold flex items-center justify-center disabled:opacity-40"
-                        >
-                          +
-                        </button>
+                        >+</button>
                       </div>
                     </div>
                   );
@@ -229,7 +212,6 @@ export default function RepetidasClient({ albumId, initialQuantityMap }: Props) 
           );
         })}
 
-        {/* Botão WhatsApp grande no final */}
         {totalDupes > 0 && (
           <button
             onClick={handleWhatsApp}
